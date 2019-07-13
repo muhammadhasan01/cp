@@ -1,0 +1,7 @@
+a = input()
+b = input()
+c = input()
+d = input()
+m = a.replace(b,"")
+x = m.find(c)+len(c)
+print(m[:x]+d+m[x:])

@@ -1,6 +1,8 @@
 #include<bits/stdc++.h>
 using namespace std;
 
+// credits to : https://github.com/luqmanarifin/cp
+
 const int N = 205;
 const int M = 1e5+5;
 bitset<M> dp[N];
@@ -10,18 +12,20 @@ char c[N];
 int main(){
     ios_base::sync_with_stdio(0);
     cin.tie(0);
+    cout.tie(0);
 
     int tc;
-    cin >> tc;
+    scanf("%d", &tc);
     while(tc--){
         int n;
-        cin >> n;
-        int m = 0;
+        scanf("%d", &n);
+        long long m = 0;
         for(int i=1;i<=n;i++){
-            cin >> a[i];
+            scanf("%d", a+i);
             m += a[i];
         }
-        for(int j=0;j<=m;j++){
+        int tgt = m/2;
+        for(int j=0;j<=tgt;j++){
             for(int i=0;i<=n;i++){
                 if(j == 0){
                    dp[i][j] = 1;
@@ -36,25 +40,24 @@ int main(){
                 }
             }
         }
-        long long ans = 0;
         int pos = 0;
-        for(int i=0;i<=m/2;i++){
-            long long k = (long long)i * (long long)(m-i);
-            if(k > ans && dp[n][i] == 1){
-                ans = k;
+        for(int i=tgt;i>=0;i--){
+            if(dp[n][i]){
                 pos = i;
+                break;
             }
         }
-        cout << ans << '\n';
+        long long t = pos;
+        printf("%lld\n", t * (m-t));
         for(int i=n;i>=1;i--){
             if(a[i] <= pos && dp[i-1][pos - a[i]] == 1){
-                c[i] = 'D';
+                c[i-1] = 'D';
                 pos -= a[i];
             }else{
-                c[i] = 'R';
+                c[i-1] = 'R';
             }
         }
-        for(int i=1;i<=n;i++)cout << c[i];
-        cout << '\n';
+        c[n] = '\0';
+        printf("%s\n",c);
     }
 }

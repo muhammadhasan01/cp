@@ -22,8 +22,6 @@ int main(){
         return 0;
     }
 
-    for(int i=1;i<=n;i++)cerr << a[i] << (i == n ? '\n' : ' ');
-
     int l = (n + 1)/2, r = (n + 1)/2 + 1;
     while(r <= n && k > 0){
         int len = r - l;

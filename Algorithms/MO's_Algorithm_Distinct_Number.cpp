@@ -78,7 +78,6 @@ int main(){
         while(cr > y+1){
             remove(cr-1); cr--;
         }
-        cerr << cl << " " << cr << " => " << ans << "\n";
         quer[v[i].idx] = ans;
     }
     form(q){

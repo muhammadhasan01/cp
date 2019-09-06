@@ -33,7 +33,6 @@ void bfs(){
     dis[1] = 1;
     while(!q.empty()){
         int k = q.front();
-        //debug1(k);
         q.pop();
         form(i,LEN(v[k])){
             if(dis[v[k][i]] == 0)

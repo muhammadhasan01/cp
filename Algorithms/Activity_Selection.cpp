@@ -22,7 +22,7 @@ using namespace std;
 // https://www.geeksforgeeks.org/activity-selection-problem-greedy-algo-1/
 // https://practice.geeksforgeeks.org/problems/n-meetings-in-one-room/0
 
-// Solution : sort ascending by end time if different and sort by descending if end time is same 
+// Solution : sort ascending by end time if different and sort by descending if end time is same
 
 struct s{
     int st, en, idx;
@@ -51,9 +51,6 @@ int main(){
             cin >> a[i].en; a[i].idx = i+1;
         }
         sort(a,a+n,cmpr);
-        /*form(i,n){
-            cout << a[i].st << " " << a[i].en << " " << a[i].idx << "\n";
-        }*/
         cout << a[0].idx;
         if(n>1)cout << " ";
         int now = a[0].en;

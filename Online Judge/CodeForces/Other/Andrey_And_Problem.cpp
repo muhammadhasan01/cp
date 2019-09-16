@@ -14,14 +14,16 @@ int main() {
     for (int i = 1; i <= n; i++) {
         cin >> p[i];
     }
-    double ans = 0;
+    sort(p + 1, p + 1 + n, greater<double>());
+    double ans = -1, cur = 1, sum = 0;
     for (int i = 1; i <= n; i++) {
-        double cur = 1;
-        for (int j = 1; j <= n; j++) {
-            if (i == j) cur *= p[j];
-            else cur *= (1 - p[j]);
+        cur *= (1 - p[i]);
+        if (p[i] == 1.0) {
+            cout << p[i] << '\n';
+            return 0;
         }
-        ans += cur;
+        sum += p[i] / (1 - p[i]);
+        ans = max(ans, cur * sum);
     }
     cout << fixed << setprecision(15) << ans << '\n';
 

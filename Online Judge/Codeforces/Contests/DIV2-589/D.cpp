@@ -3,9 +3,9 @@ using namespace std;
 
 const int N = 1e5 + 5;
 int n, m;
-string g[N];
+vector<int> g[N];
 int ans[N];
-map<string, int> mp;
+map<vector<int>, int> mp;
 
 int main() {
     ios_base::sync_with_stdio(0);
@@ -16,8 +16,8 @@ int main() {
     for (int i = 1; i <= m; i++) {
         int u, v;
         cin >> u >> v;
-        g[u] += to_string(v);
-        g[v] += to_string(u);
+        g[u].push_back(v);
+        g[v].push_back(u);
     }
 
     for (int i = 1; i <= n; i++) {
@@ -25,10 +25,12 @@ int main() {
     }
 
     int cnt = 0;
+    vector<int> v;
     for (int i = 1; i <= n; i++) {
         if (mp[g[i]] == 0) {
             mp[g[i]] = ++cnt;
             ans[i] = cnt;
+            v.push_back(i);
         } else {
             ans[i] = mp[g[i]];
         }
@@ -40,6 +42,12 @@ int main() {
     if (cnt != 3) {
         puts("-1");
         return 0;
+    }
+    for (auto e : v) {
+        if ((int) g[e].size() == 0) {
+            puts("-1");
+            return 0;
+        }
     }
     for (int i = 1; i <= n; i++) {
         cout << ans[i] << (i == n ? '\n' : ' ');

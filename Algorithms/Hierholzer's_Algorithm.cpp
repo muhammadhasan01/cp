@@ -1,6 +1,19 @@
 #include <bits/stdc++.h>
 // Finding Euclidean Path
 // from user https://codeforces.com/profile/yassin_
+
+// https://cp-algorithms.com/graph/euler_path.html
+// stack St;
+// put start vertex in St;
+// until St is empty
+//   let V be the value at the top of St;
+//   if degree(V) = 0, then
+//     add V to the answer;
+//     remove V from the top of St;
+//   otherwise
+//     find any edge coming out of V;
+//     remove it from the graph;
+//     put the second end of this edge in St;
 using namespace std;
 
 int main() {

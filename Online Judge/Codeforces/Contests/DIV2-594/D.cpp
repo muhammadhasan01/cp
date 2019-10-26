@@ -2,64 +2,9 @@
 
 using namespace std;
 
-const int N = 505;
+const int N = 5e2 + 3;
 int n;
-char a[2 * N + 5];
-
-struct st {
-    int l, r;
-};
-
-st t[8 * N];
-st ex;
-
-st merge(st a, st b) {
-    if (a.l == -1 && a.r == -1) return b;
-    if (b.l == -1 && b.r == -1) return a;
-    st ret;
-    int k = min(a.l, b.r);
-    ret.l = a.l + b.l - k;
-    ret.r = a.r + b.r - k;
-    return ret;
-}
-
-void build(int v, int s, int e) {
-    if (s == e) {
-        t[v].l = (a[s] == '(');
-        t[v].r = (a[s] == ')');
-    } else {
-        int mid = (s + e) >> 1;
-        build(2 * v, s, mid);
-        build(2 * v + 1, mid + 1, e);
-        t[v] = merge(t[2 * v], t[2 * v + 1]);
-    }
-}
-
-void update(int v, int s, int e, int pos, char x) {
-    if (s == e) {
-        t[v].l = (x == '(');
-        t[v].r = (x == ')');
-    } else {
-        int mid = (s + e) >> 1;
-        if (pos <= mid) {
-            update(2 * v, s, mid, pos, x);
-        } else {
-            update(2 * v + 1, mid + 1, e, pos, x);
-        }
-        t[v] = merge(t[2 * v], t[2 * v + 1]);
-    }
-}
-
-st get(int v, int s, int e, int l, int r) {
-    if (s > r || e < l) {
-        return ex;
-    }
-    if (l <= s && e <= r) {
-        return t[v];
-    }
-    int mid = (s + e) >> 1;
-    return merge(get(2 * v, s, mid, l, r), get(2 * v + 1, mid + 1, e, l, r));
-}
+char s[N];
 
 int main() {
     ios_base::sync_with_stdio(0);
@@ -67,49 +12,53 @@ int main() {
     cout.tie(0);
 
     cin >> n;
+    int ans = 1e9, cnt = 0;
     for (int i = 1; i <= n; i++) {
-        cin >> a[i];
-        a[i + n] = a[i];
+        cin >> s[i];
+        if (s[i] == '(') cnt++;
+        else cnt--;
+        ans = min(ans, cnt);
     }
 
-    int m = 2 * n;
-    build(1, 1, m);
+    if (cnt != 0) {
+        cout << 0 << '\n' << 1 << ' ' << 1 << '\n';
+        return 0;
+    }
 
-    int ans = 0;
     int l = 1, r = 1;
-
+    int res = 0;
+    cnt = 0;
     for (int i = 1; i <= n; i++) {
-        st g = get(1, 1, m, i, i + n - 1);
-        if (g.l == 0 && g.l == g.r) ans++;
+        if (s[i] == '(') cnt++;
+        else cnt--;
+        if (cnt == ans) res++;
     }
 
     for (int i = 1; i <= n; i++) {
         for (int j = i + 1; j <= n; j++) {
-            if (a[i] == a[j]) continue;
-            int ret = 0;
-            if (i != j) {
-                update(1, 1, m, i, a[j]);
-                update(1, 1, m, j, a[i]);
-                update(1, 1, m, i + n, a[j]);
-                update(1, 1, m, j + n, a[i]);
-            }
+            if (s[i] == s[j]) continue;
+            swap(s[i], s[j]);
+            int mini = 1e9, cur = 0, ret = 0;
             for (int k = 1; k <= n; k++) {
-                st g = get(1, 1, m, k, k + n - 1);
-                if (g.l == 0 && g.l == g.r) ret++;
+                if (s[k] == '(') cur++;
+                else cur--;
+                mini = min(mini, cur);
             }
-            if (i != j) {
-                update(1, 1, m, i, a[i]);
-                update(1, 1, m, j, a[j]);
-                update(1, 1, m, i + n, a[i]);
-                update(1, 1, m, j + n, a[j]);
+            cur = 0;
+            for (int k = 1; k <= n; k++) {
+                if (s[k] == '(') cur++;
+                else cur--;
+                if (cur == mini) ret++;
             }
-            if (ret > ans) {
-                ans = ret;
+            swap(s[i], s[j]);
+            mini = -mini;
+            if (ret > res) {
+                res = ret;
                 l = i, r = j;
             }
         }
     }
-    cout << ans << '\n';
+    cout << res << '\n';
     cout << l << " " << r << '\n';
 
     return 0;

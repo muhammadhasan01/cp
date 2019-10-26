@@ -3,7 +3,6 @@
 using namespace std;
 
 int q;
-int a[105];
 int n;
 
 int main() {
@@ -14,17 +13,17 @@ int main() {
     cin >> q;
     while (q--) {
         cin >> n;
+        int od = 0, cnt = 0;
         for (int i = 1; i <= n; i++) {
-            cin >> a[i];
-        }
-        sort(a + 1, a + 1 + n);
-        bool ok = false;
-        for (int i = 1; i <= n - 1; i++) {
-            if (a[i] == a[i + 1] - 1) {
-                ok = true;
+            string s;
+            cin >> s;
+            int len = s.size();
+            if (len & 1) od++;
+            else {
+                for (auto e : s) if (e == '1') cnt++;
             }
         }
-        cout << (ok ? 2 : 1) << '\n';
+        cout << (od || (cnt % 2 == 0) ? n : n - 1) << '\n';
     }
 
     return 0;

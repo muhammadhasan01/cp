@@ -14,7 +14,7 @@ bool can(long long x){
 int main(){
     ios_base::sync_with_stdio(0);
     cin.tie(0);
-
+    
     cin >> n >> m >> k;
     long long l = 1, r = (long long)n*m, ans;
     while(l <= r){

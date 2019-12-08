@@ -1,3 +1,4 @@
+// source : https://cp-algorithms.com/graph/strongly-connected-components.html
 vector < vector<int> > g, gr;
 vector<bool> used;
 vector<int> order, component;

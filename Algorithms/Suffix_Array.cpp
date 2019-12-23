@@ -55,6 +55,43 @@ vector<int> suffix_array_construction(string s) {
     return sorted_shifts;
 }
 
+int lcp(int i, int j) {
+    int ans = 0;
+    for (int k = log_n; k >= 0; k--) {
+        if (c[k][i] == c[k][j]) {
+            ans += 1 << k;
+            i += 1 << k;
+            j += 1 << k;
+        }
+    }
+    return ans;
+}
+
+vector<int> lcp_construction(string const& s, vector<int> const& p) {
+    int n = s.size();
+    vector<int> rank(n, 0);
+    for (int i = 0; i < n; i++)
+        rank[p[i]] = i;
+
+    int k = 0;
+    vector<int> lcp(n-1, 0);
+    for (int i = 0; i < n; i++) {
+        if (rank[i] == n - 1) {
+            k = 0;
+            continue;
+        }
+        int j = p[rank[i] + 1];
+        while (i + k < n && j + k < n && s[i+k] == s[j+k])
+            k++;
+        lcp[rank[i]] = k;
+        if (k)
+            k--;
+    }
+    return lcp;
+}
+
+// number of different substring = n * (n + 1) / 2 - sum_(i = 0 to n - 2) lcp[i]
+
 int main() {
     ios_base::sync_with_stdio(0);
     cin.tie(0);

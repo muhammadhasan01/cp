@@ -18,7 +18,7 @@ int main() {
     dp[l][r]++;
   }
   for (int len = M; len >= 1; len--) {
-    for (int i = 1; i <= M; i++) {
+    for (int i = 0; i <= M; i++) {
       int j = len + i - 1;
       if (j > M) break;
       dp[i][j] += dp[i - 1][j] + dp[i][j + 1] - dp[i - 1][j + 1];

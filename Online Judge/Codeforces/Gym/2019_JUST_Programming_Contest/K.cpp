@@ -2,8 +2,11 @@
 
 using namespace std;
 
+const int N = 1e5 + 5;
+
 int tc;
 int n;
+int a[N];
 
 int main() {
   ios_base::sync_with_stdio(0);
@@ -13,21 +16,24 @@ int main() {
   cin >> tc;
   while (tc--) {
     cin >> n;
-    set<int> s, res;
+    map<int, int> mp;
+    int ans = 0;
     for (int i = 1; i <= n; i++) {
-      int x;
-      cin >> x;
-      set<int> temp;
-      for (auto e : s) {
-        temp.insert(x | e);
+      cin >> a[i];
+      if (!mp.count(a[i])) {
+        mp[a[i]] = 1;
+        ans++;
       }
-      temp.insert(x);
-      for (auto e : temp) {
-        res.insert(e);
+      for (int j = i - 1; j >= 1; j--) {
+        if (a[j] == (a[j] | a[i])) break;
+        a[j] = (a[j] | a[i]);
+        if (!mp.count(a[j])) {
+          mp[a[j]] = 1;
+          ans++;
+        }
       }
-      s = temp;
     }
-    cout << (int) res.size() << '\n';
+    cout << ans << '\n';
   }
 
   return 0;

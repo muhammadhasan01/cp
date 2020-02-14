@@ -9,7 +9,10 @@ int main() {
   cin.tie(0);
   cout.tie(0);
 
-
+  int a, b;
+  cin >> a >> b;
+  int res = (a | b) - b;
+  cout << res << '\n';
 
   return 0;
 }

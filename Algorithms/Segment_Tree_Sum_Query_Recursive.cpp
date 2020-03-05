@@ -33,7 +33,7 @@ void build(int node, int start, int end){
 }
 
 void update(int node, int start, int end, int idx, int val){
-    if(start == end){
+    if(start == end && start == idx){
         a[idx] = val;
         tree[node] = val;
     }else{

@@ -2,34 +2,43 @@
 
 using namespace std;
 
-const int INF = 2e9;
+string inp;
+char cc;
 
 int main() { 
   ios_base::sync_with_stdio(0);
   cin.tie(0);
   cout.tie(0);
 
-  string inp;
-  char r1, r2;
+  vector<int> v;
+  v.push_back(0);
+  for (int i = 0; i <= 30; i++) v.push_back((1 << i));
+
   while (1) {
     cin >> inp;
-    if (inp[0] == 'e') exit(0);
-    int l = 0, r = INF - 2, ans = 1;
-    while (l <= r) {
-      int mid = (l + r) / 2;
-      cout << mid + 1 << " " << mid << endl;
-      cin >> r1;
-      if (r1 == 'y') {
-        ans = mid;
-        r = mid - 1;
-        continue;
+    if (inp[0] != 's') exit(0);
+    for (int i = 0; i <= 30; i++) {
+      int left = v[i], right = v[i + 1];
+      cout << "? " << left << " " << right << endl;
+      cin >> cc;
+      if (cc == 'y') continue;
+      int ans = -1;
+      int cleft = left++;
+      while (left <= right) {
+        int middle = (left + right) / 2;
+        cout << "? " << cleft << " " << middle << endl;
+        cin >> cc;
+        if (cc == 'y') {
+          left = middle + 1;
+        } else if (cc == 'x') {
+          ans = middle;
+          right = middle - 1;
+        } else {
+          exit(0);
+        }
       }
-      cout << mid + 2 << " " << mid + 1 << endl;
-      cin >> r2;
-      if (r1 == 'y' && r2 == 'x') {
-        ans = mid;
-        r = mid - 1;
-      }
+      cout << "! " << ans << endl; 
+      break; 
     }
   }
 

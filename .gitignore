@@ -2,3 +2,4 @@
 *.in
 *.out
 dbg.cpp
+/random

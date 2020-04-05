@@ -1,0 +1,5 @@
+accounts 1
+team	cd teamCP_65
+team	/d teamCP_66
+team	"c:\Users\USER\github\cp\random" teamCP_67
+team	.\"generateAccount.exe" teamCP_68

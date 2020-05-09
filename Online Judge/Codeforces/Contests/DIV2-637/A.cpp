@@ -2,22 +2,21 @@
 
 using namespace std;
 
-int tc;
-int n, a, b, c, d;
-
 int main() { 
     ios_base::sync_with_stdio(0);
     cin.tie(0);
     cout.tie(0);
 
+    int tc;
+    int a, b, c, d, n;
     cin >> tc;
     while (tc--) {
         cin >> n >> a >> b >> c >> d;
-        int lowz = (a - b) * n;
-        int hgh = (a + b) * n;
+        int mini = (a - b) * n;
+        int maxi = (a + b) * n;
         bool flag = false;
         for (int i = c - d; i <= c + d; i++) {
-            if (lowz <= i && i <= hgh) {
+            if (mini <= i && i <= maxi) {
                 flag = true;
                 break;
             }

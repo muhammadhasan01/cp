@@ -3,11 +3,9 @@
 using namespace std;
 
 const int N = 4e3 + 5;
-const int K = 8e2 + 5;
 const int INF = 2e9;
 
 int n, k;
-int a[N][N];
 int sz[N][N];
 int prec[N][N];
 int dp[2][N];
@@ -40,8 +38,10 @@ int main() {
     for (int i = 1; i <= n; i++) {
         int pre = 0;
         for (int j = 1; j <= n; j++) {
-            cin >> a[i][j];
-            pre += a[i][j];
+            char x;
+            cin >> x;
+            int cur = (x - '0');
+            pre += cur;
             sz[i][j] = pre + sz[i - 1][j];
         }
     }

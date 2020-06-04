@@ -1,5 +1,5 @@
 #include <bits/stdc++.h>
-// Finding Euclidean Path
+// Finding Eulerian Path
 // from user https://codeforces.com/profile/yassin_
 
 // https://cp-algorithms.com/graph/euler_path.html

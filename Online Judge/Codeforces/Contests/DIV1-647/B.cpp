@@ -3,7 +3,7 @@
 using namespace std;
 
 const int N = 1e6 + 5;
-const int K = 22;
+const int K = 30;
 const long long M = 1e9 + 7;
 
 int tc;
@@ -39,6 +39,7 @@ int main() {
         unordered_map<int, int> cnt;
         int maks = k[1];
         int l = 1, r = 1;
+        cnt[maks]--;
         for (int i = 2; i <= n; i++) {
             cnt[k[i]]++;
             r = i;
@@ -46,11 +47,11 @@ int main() {
                 cnt[t + 1] += cnt[t] / p;
                 cnt[t] %= p;
             }
-            if (cnt[maks] == 1) {
+            if (cnt[maks] == 0) {
                 ++i;
                 maks = k[i];
                 l = r = i;
-                cnt[maks] = 0;
+                cnt[maks]--;
             }
         }
         long long res = 0;

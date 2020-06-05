@@ -7,8 +7,7 @@ const int B = 100;
 
 int n;
 long long b[N];
-int h[N];
-vector<int> hgh[B];
+queue<long long> pq[B];
 
 void dismiss() {
     cout << "No" << "\n";
@@ -24,26 +23,36 @@ int main() {
     for (int i = 1; i <= n; i++) {
         cin >> b[i];
     }
+    long long cur = 0;
     for (int i = 1; i <= n; i++) {
+        cur = (cur ^ b[i]);
         for (int it = 60; it >= 0; it--) {
-            bool bit = (b[i] & 1LL << it);
+            bool bit = (b[i] & (1LL << it));
             if (bit) {
-                if (h[i] == 0) {
-                    h[i] = it;
-                    hgh[it].emplace_back(i);
-                    break;
-                }
+                pq[it].emplace(b[i]);
+                break;
             }
         }
     }
-    bool flag
-    for (int it = 60; it >= 0; it--) {
-        int len = hgh[it].size();
-        if (len == 0) continue;
-        if (ff == -1) {
-            ff = 
-            if (len > 1) dismiss();
+    deque<long long> answer;
+    for (int i = 1; i <= n; i++) {
+        bool flag = false;
+        for (int j = 0; j <= 60; j++) {
+            bool bit = (cur & (1LL << j));
+            if (!bit) continue;
+            if (pq[j].empty()) continue;
+            long long temp = pq[j].front();
+            pq[j].pop();
+            answer.emplace_front(temp);
+            cur = (cur ^ temp);
+            flag = true;
+            break;
         }
+        if (!flag) dismiss();
+    }
+    cout << "Yes" << '\n';
+    for (int i = 0; i < n; i++) {
+        cout << answer[i] << (i == n - 1 ? '\n' : ' ');
     }
 
     return 0;

@@ -1,68 +1,45 @@
-#include<bits/stdc++.h>
-#define mp make_pair
-#define pb push_back
-#define ff first
-#define ss second
-#define inf INT_MAX
-#define MOD 1000000007
-#define MEM(a,b) memset(a,(b),sizeof(a))
-#define ll long long
-#define pll pair<long long,long long>
-#define pii pair<int,int>
-using namespace std;
+// https://cp-algorithms.com/graph/dijkstra.html
 
-// problem link https://www.hackerrank.com/challenges/dijkstrashortreach/problem
-// https://www.geeksforgeeks.org/dijkstras-shortest-path-algorithm-using-priority_queue-stl/
+const int INF = 1000000000;
+vector<vector<pair<int, int>>> adj;
 
-int t,n,m,x,y,s,r;
+void dijkstra(int s, vector<int> & d, vector<int> & p) {
+    int n = adj.size();
+    d.assign(n, INF);
+    p.assign(n, -1);
+    vector<bool> u(n, false);
 
-void Djikstra(vector<pii> a[]){
-    priority_queue<pii, vector<pii>, greater<pii> > pq;
+    d[s] = 0;
+    for (int i = 0; i < n; i++) {
+        int v = -1;
+        for (int j = 0; j < n; j++) {
+            if (!u[j] && (v == -1 || d[j] < d[v]))
+                v = j;
+        }
 
-    vector<int> dist(n+2,inf);
-    dist[s] = 0;
-    pq.push(mp(dist[s],s));
-    while(!pq.empty()){
-        int u = pq.top().ss;
-        pq.pop();
+        if (d[v] == INF)
+            break;
 
-        for(int j=0; j<a[u].size(); j++){
-            int v = a[u][j].ff;
-            int weight = a[u][j].ss;
-            if(dist[v] > dist[u]+weight){
-                //cout << v << " => " << dist[u]+weight << "\n";
-                dist[v] = dist[u]+weight;
-                pq.push(mp(dist[v],v));
+        u[v] = true;
+        for (auto edge : adj[v]) {
+            int to = edge.first;
+            int len = edge.second;
+
+            if (d[v] + len < d[to]) {
+                d[to] = d[v] + len;
+                p[to] = v;
             }
         }
     }
-
-    for(int i=1;i<=n;i++){
-        cout << i << " => " << dist[i] << "\n";
-        // if dist[i] is still inf, then it is not connected to s
-    }
-
 }
 
-int main()
-{
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
-    cout.tie(NULL);
+vector<int> restore_path(int s, int t, vector<int> const& p) {
+    vector<int> path;
 
-    cin >> t;
-    while(t--){
-        cin >> n >> m;
-        vector<pii> a[n+2];
-        for(int i=1; i<=m;i++){
-            cin >> x >> y >> r;
-            a[x].pb(mp(y,r));
-            a[y].pb(mp(x,r));
-        }
-        
-        cin >> s;
-        Djikstra(a);
-    }
+    for (int v = t; v != s; v = p[v])
+        path.push_back(v);
+    path.push_back(s);
 
-    return 0;
+    reverse(path.begin(), path.end());
+    return path;
 }

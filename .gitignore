@@ -1,5 +1,7 @@
 *.exe
 *.in
 *.out
+input.txt
+output.txt
 dbg.cpp
 /random

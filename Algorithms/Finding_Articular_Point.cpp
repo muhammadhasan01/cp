@@ -5,24 +5,24 @@ vector<bool> visited;
 vector<int> tin, low;
 int timer;
 
-void dfs(int v, int p = -1) {
-    visited[v] = true;
-    tin[v] = low[v] = timer++;
-    int children=0;
-    for (int to : adj[v]) {
-        if (to == p) continue;
-        if (visited[to]) {
-            low[v] = min(low[v], tin[to]);
+void dfs(int u, int p = -1) {
+    visited[u] = true;
+    tin[u] = low[u] = timer++;
+    int children = 0;
+    for (int v : adj[u]) {
+        if (v == p) continue;
+        if (visited[v]) {
+            low[u] = min(low[u], tin[v]);
         } else {
-            dfs(to, v);
-            low[v] = min(low[v], low[to]);
-            if (tin[v] <= low[to] && p != -1)
-                IS_CUTPOINT(v);
+            dfs(v, u);
+            low[u] = min(low[u], low[v]);
+            if (tin[u] <= low[v] && p != -1)
+                IS_CUTPOINT(u);
             ++children;
         }
     }
     if(p == -1 && children > 1)
-        IS_CUTPOINT(v);
+        IS_CUTPOINT(u);
 }
 
 void find_cutpoints() {

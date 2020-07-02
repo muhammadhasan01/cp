@@ -91,13 +91,3 @@ vector<int> lcp_construction(string const& s, vector<int> const& p) {
 }
 
 // number of different substring = n * (n + 1) / 2 - sum_(i = 0 to n - 2) lcp[i]
-
-int main() {
-    ios_base::sync_with_stdio(0);
-    cin.tie(0);
-    cout.tie(0);
-
-
-
-    return 0;
-}

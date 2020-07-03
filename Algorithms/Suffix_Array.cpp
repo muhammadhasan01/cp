@@ -48,17 +48,17 @@ vector<int> sort_cyclic_shifts(string const& s) {
     return p;
 }
 
-int compare(int i, int j, int l, int k) {
-    pair<int, int> a = {c[k][i], c[k][(i+l-(1 << k))%n]};
-    pair<int, int> b = {c[k][j], c[k][(j+l-(1 << k))%n]};
-    return a == b ? 0 : a < b ? -1 : 1;
-}
-
 vector<int> suffix_array_construction(string s) {
     s += "$";
     vector<int> sorted_shifts = sort_cyclic_shifts(s);
     sorted_shifts.erase(sorted_shifts.begin());
     return sorted_shifts;
+}
+
+int compare(int i, int j, int l, int k) {
+    pair<int, int> a = {c[k][i], c[k][(i+l-(1 << k))%n]};
+    pair<int, int> b = {c[k][j], c[k][(j+l-(1 << k))%n]};
+    return a == b ? 0 : a < b ? -1 : 1;
 }
 
 int lcp(int i, int j) {

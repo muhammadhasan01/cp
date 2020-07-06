@@ -1,159 +1,133 @@
-// https://github.com/TimonKnigge/Competitive-Programming/blob/master/SPOJ/TREAP.cpp
-#include <iostream>
-#include <vector>
-#include <algorithm>
-#include <functional>
+#include <bits/stdc++.h>
 
 using namespace std;
 
-typedef long long ll;
-const ll LLINF = 2e16, LLBOUND = 2e15;
+const int INF = 1e9 + 500;
 
-struct Node {
-	ll val, mx, mn, mdiff;
-	int size, priority;
-	Node *l, *r;
-	Node(ll _val) : val(_val), mx(_val), mn(_val), mdiff(LLINF), size(1) {
-		priority = rand();
-	}
+struct item {
+    int val, prior, cnt; 
+    int maxi, mini, mdif;
+    item *l, *r;
+    item(int val) : val(val), prior(rand()), cnt(0), maxi(-INF), mini(INF), mdif(INF),
+                    l(NULL), r(NULL) { }
 };
+typedef item* pitem;
 
-int size(Node *p) { return p == NULL ? 0 : p->size; }
-ll getmax(Node *p) { return p == NULL ? -LLINF : p->mx; }
-ll getmin(Node *p) { return p == NULL ? LLINF : p->mn; }
-ll getmdiff(Node *p) { return p == NULL ? LLINF : p->mdiff; }
-void update(Node *p) {
-	if (p == NULL) return;
-	p->size = 1 + size(p->l) + size(p->r);
-	p->mx = max(p->val, max(getmax(p->l), getmax(p->r)));
-	p->mn = min(p->val, min(getmin(p->l), getmin(p->r)));
-	p->mdiff = LLINF;
-	if (p->l != NULL)
-		p->mdiff = min(p->mdiff, min(getmdiff(p->l), p->val - getmax(p->l)));
-	if (p->r != NULL)
-		p->mdiff = min(p->mdiff, min(getmdiff(p->r), getmin(p->r) - p->val));
-}
-void merge(Node *&t, Node *l, Node *r) {
-	if (l == NULL)      { t = r; }
-	else if (r == NULL) { t = l; }
-	else if (l->priority > r->priority) {
-		merge(l->r, l->r, r);
-		t = l;
-	} else {
-		merge(r->l, l, r->l);
-		t = r;
-	}
-	update(t);
-}
-void splitat(Node *t, Node *&l, Node *&r, int at) {
-	if (t == NULL) { l = r = NULL; return; }
-	int id = size(t->l);
-	if (id > at) {
-		splitat(t->l, l, t->l, at); 
-		r = t;
-	} else {
-		splitat(t->r, t->r, r, at - id - 1);
-		l = t;
-	}
-	update(t);
-}
-ll Nquery(Node *t, int i, int j) {
-	Node *l, *r;
-	splitat(t, l, t, i - 1);
-	splitat(t, t, r, j - i);
-	ll ret = getmdiff(t);
-	merge(t, l, t);
-	merge(t, t, r);
-	return (ret <= 0 || ret > LLBOUND ? -1 : ret);
-}
-ll Xquery(Node *t, int i, int j) {
-	Node *l, *r;
-	splitat(t, l, t, i - 1);
-	splitat(t, t, r, j - i);
-	ll ret = getmax(t) - getmin(t);
-	merge(t, l, t);
-	merge(t, t, r);
-	return (ret <= 0 || ret > LLBOUND ? -1 : ret);
-}
-void split(Node *t, Node *&l, Node *&r, ll val) {
-	if (t == NULL) { l = r = NULL; return; }
-	if (t->val >= val) {
-		split(t->l, l, t->l, val);
-		r = t;
-	} else {
-		split(t->r, t->r, r, val);
-		l = t;
-	}
-	update(t);
-}
-void insert(Node *&t, ll val) {
-	Node *n = new Node(val), *l, *r;
-	split(t, l, t, val);
-	split(t, t, r, val + 1);
-	merge(t, l, n);
-	merge(t, t, r);
-}
-void erase(Node *&t, ll val, bool del = true) {
-	Node *L, *rm;
-	split(t, t, L, val);
-	split(L, rm, L, val + 1);
-	merge(t, t, L);
-	if (del && rm != NULL) delete rm;
-}
-void inorder(Node *p) {
-	if (p == NULL) return;
-	inorder(p->l);
-	cout << p->val << ' ';
-	inorder(p->r);
-}
-void cleanup(Node *p) {
-	if (p == NULL) return;
-	cleanup(p->l); cleanup(p->r);
-	delete p;
+int cnt(pitem t) { return (t ? t->cnt : 0); }
+int maxi(pitem t) { return (t ? t->maxi : -INF); }
+int mini(pitem t) { return (t ? t->mini : INF); }
+int mdif(pitem t) { return (t ? t->mdif : INF); }
+
+void upd(pitem t) {
+    if (!t) return;
+    t->cnt = 1 + cnt(t->l) + cnt(t->r);
+    t->mini = min(t->val, min(mini(t->l), mini(t->r)));
+    t->maxi = max(t->val, max(maxi(t->l), maxi(t->r)));
+    t->mdif = INF;
+    if (t->l)
+        t->mdif = min(t->mdif, min(t->val - maxi(t->l), mdif(t->l)));
+    if (t->r)
+        t->mdif = min(t->mdif, min(mini(t->r) - t->val, mdif(t->r)));
 }
 
-int main() {
-	ios::sync_with_stdio(false);
-	cin.tie(NULL);
-	
-	Node *tree = NULL;
-	
-	srand(time(NULL));
-	
-	int Q;
-	cin >> Q;
-	for (int q = 1; q <= Q; ++q) {
-		char c;
-		cin >> c;
-		switch (c) {
-			case 'I':
-				ll k;
-				cin >> k;
-				insert(tree, k);
-				break;
-			case 'D':
-				ll kd;
-				cin >> kd;
-				erase(tree, kd);
-				break;
-			case 'X':
-				int l, r;
-				cin >> l >> r;
-				if (r - l < 1) cout << -1 << '\n';
-				else cout << Xquery(tree, l, r) << '\n';
-				break;
-			case 'N':
-				int ll, rr;
-				cin >> ll >> rr;
-				if (rr - ll < 1) cout << -1 << '\n';
-				else cout << Nquery(tree, ll, rr) << '\n';
-				break;
-		}
-//		cout << "   ";
-//		inorder(tree); cout << endl;
-	}
-	cout << flush;
-	cleanup(tree);
-	
-	return 0;
+void split(pitem t, pitem& l, pitem& r, int val) {
+    if (!t)
+        l = r = NULL;
+    else if (val < t->val)
+        split(t->l, l, t->l, val),  r = t;
+    else
+        split(t->r, t->r, r, val),  l = t;
+    upd(t);
+}
+
+void merge(pitem& t, pitem l, pitem r) {
+    if (!l || !r)
+        t = l ? l : r;
+    else if (l->prior > r->prior)
+        merge(l->r, l->r, r),  t = l;
+    else
+        merge(r->l, l, r->l),  t = r;
+    upd(t);
+}
+
+void insert(pitem& t, pitem it) {
+    if (!t)
+        t = it;
+    else if (it->prior > t->prior)
+        split(t, it->l, it->r, it->val),  t = it;
+    else
+        insert(it->val < t->val ? t->l : t->r, it);
+    upd(t);
+}
+
+void erase(pitem& t, int val) {
+    if (!t) return;
+    if (t->val == val)
+        merge(t, t->l, t->r);
+    else
+        erase(val < t->val ? t->l : t->r, val);
+    upd(t);
+}
+
+void insert_val(pitem& t, int val) {
+    pitem it = new item(val), L, R;
+    split(t, t, R, val);
+    split(R, L, R, val + 1);
+    merge(t, t, R);
+    insert(t, it);
+}
+
+void split_at(pitem t, pitem& l, pitem& r, int pos) {
+    if (!t) {
+        l = r = NULL;
+        return;
+    }
+    int curpos = cnt(t->l);
+    if (pos < curpos)
+        split_at(t->l, l, t->l, pos), r = t;
+    else
+        split_at(t->r, t->r, r, pos - curpos - 1), l = t;
+    upd(t);
+}
+
+int query(pitem t, int l, int r, bool maks) {
+    if (l >= r) return -1;
+    pitem L1, L2, L3;
+    split_at(t, L1, L2, l - 1);
+    split_at(L2, L2, L3, r - l);
+    int ret = (maks ? maxi(L2) - mini(L2) : mdif(L2));
+    merge(t, L1, L2);
+    merge(t, t, L3);
+    return (ret >= INF ? -1 : ret);
+}
+
+pitem myTreap;
+
+int main() { 
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+    
+    srand(time(NULL));
+    int tc, val, l, r;
+    char tp;
+    cin >> tc;
+    while (tc--) {
+        cin >> tp;
+        if (tp == 'I') {
+            cin >> val;
+            insert_val(myTreap, val);
+        } else if (tp == 'D') {
+            cin >> val;
+            erase(myTreap, val);
+        } else if (tp == 'N') {
+            cin >> l >> r;
+            cout << query(myTreap, l, r, 0) << '\n';
+        } else if (tp == 'X') {
+            cin >> l >> r;
+            cout << query(myTreap, l, r, 1) << '\n';
+        }
+    }
+
+    return 0;
 }

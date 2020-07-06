@@ -1,24 +1,31 @@
-// https://cp-algorithms.com/data_structures/treap.html
+#include <bits/stdc++.h>
+
+using namespace std;
 
 mt19937 rng32(chrono::steady_clock::now().time_since_epoch().count());
 
 typedef struct item * pitem;
 struct item {
     int prior, value, cnt;
-    int F; // (for function value such as sum/min/max)
+    // long long F; // (for function value such as sum/min/max)
     bool rev;
     pitem l, r;
     item(int value) : prior(rng32()), value(value), cnt(0), rev(false),
                   l(NULL), r(NULL) { }
 };
 
-int cnt(pitem it) {
-    return it ? it->cnt : 0;
-}
+const int N = 2e5 + 5;
+
+int n, q, m;
+pitem myTreap;
+int ans[N];
+int curIdx;
+
+int cnt(pitem it) { return (it ? it->cnt : 0); }
 
 void upd(pitem it) {
-    if (it)
-        it->cnt = cnt(it->l) + cnt(it->r) + 1;
+    if (!it) return;
+    it->cnt = cnt(it->l) + cnt(it->r) + 1;
 }
 
 void push(pitem it) {
@@ -42,7 +49,6 @@ void merge(pitem& t, pitem l, pitem r) {
     upd(t);
 }
 
-// l = [0..pos-1], r = [pos..sz]
 void split(pitem t, pitem& l, pitem& r, int key, int add = 0) {
     if (!t)
         return void( l = r = 0 );
@@ -64,12 +70,12 @@ void reverse(pitem t, int l, int r) {
     merge(t, t, t3);
 }
 
-void output(pitem t) {
+void getAns(pitem t) {
     if (!t)  return;
     push(t);
-    output(t->l);
-    cout << t->value << ' ';
-    output(t->r);
+    getAns(t->l);
+    ans[++curIdx] = t->value;
+    getAns(t->r);
 }
 
 void insert(pitem& t, int pos, pitem new_item) {
@@ -92,7 +98,6 @@ void erase(pitem& t, int value) {
     upd(t);
 }
 
-// Zero Index
 void erase_at(pitem& t, int pos) {
     pitem t1, t2, t3;
     split(t, t1, t2, pos);
@@ -100,7 +105,6 @@ void erase_at(pitem& t, int pos) {
     merge(t, t1, t3);
 }
 
-// Zero Index
 int get_at(pitem t, int pos) {
     pitem t1, t2, t3;
     split(t, t1, t2, pos);
@@ -111,12 +115,37 @@ int get_at(pitem t, int pos) {
     return ret;
 }
 
-int func(pitem t, int l, int r) {
-    pitem t1, t2, t3;
-    split(t, t1, t2, l);
-    split(t2, t2, t3, r - l + 1);
-    int ret = t2->F; // don't forget to change upd() and call it at the end of methods
-    merge(t, t1, t2);
-    merge(t, t, t3);
-    return ret;
+int main() { 
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+
+    cin >> n >> q >> m;
+    for (int i = 0; i < n; i++) {
+        int x;
+        cin >> x;
+        pitem new_item = new item(x);
+        insert(myTreap, i, new_item);
+    }
+    while (q--) {
+        int tp, l, r;
+        cin >> tp >> l >> r;
+        l--, r--;
+        if (tp == 1) {
+            int val = get_at(myTreap, r);
+            pitem new_item = new item(val);
+            erase_at(myTreap, r);
+            insert(myTreap, l, new_item);
+        } else if (tp == 2) {
+            reverse(myTreap, l, r);
+        }
+    }
+    getAns(myTreap);
+    for (int i = 1; i <= m; i++) {
+        int x;
+        cin >> x;
+        cout << ans[x] << (i == m ? '\n' : ' ');
+    }
+
+    return 0;
 }

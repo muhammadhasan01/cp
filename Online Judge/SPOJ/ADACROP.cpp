@@ -1,4 +1,8 @@
-// https://cp-algorithms.com/data_structures/treap.html
+#include <bits/stdc++.h>
+
+using namespace std;
+
+const int N = 5e5;
 
 mt19937 rng32(chrono::steady_clock::now().time_since_epoch().count());
 
@@ -105,48 +109,45 @@ int getPos(pitem t, int val) {
         return getPos(t->l, val);
 }
 
-pitem unite(pitem l, pitem r) {
-    if (!l || !r) return l ? l : r;
-    if (l->prior < r->prior) swap(l, r);
-    pitem lt, rt;
-    split(r, lt, rt, l->key);
-    l->l = unite(l->l, lt);
-    l->r = unite(l->r, rt);
-    return l;
-}
+int n, q;
+int a[N];
+pair<int, int> p[N];
+pitem treaps[N];
 
-// Building Treap in O(N) (assuming array already sorted)
-void heapify (pitem t) {
-    if (!t) return;
-    pitem max = t;
-    if (t->l != NULL && t->l->prior > max->prior)
-        max = t->l;
-    if (t->r != NULL && t->r->prior > max->prior)
-        max = t->r;
-    if (max != t) {
-        swap (t->prior, max->prior);
-        heapify (max);
+int main() { 
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+    
+    cin >> n >> q;
+    vector<int> values;
+    for (int i = 1; i <= n; i++) {
+        cin >> a[i];
+        values.emplace_back(a[i]);
     }
-}
+    for (int i = 1; i <= q; i++) {
+        cin >> p[i].first >> p[i].second;
+        values.emplace_back(p[i].second);
+    }
+    sort(values.begin(), values.end());
+    values.resize(unique(values.begin(), values.end()) - values.begin());
+    for (int i = 1; i <= n; i++) {
+        a[i] = upper_bound(values.begin(), values.end(), a[i]) - values.begin();
+        pitem new_item = new item(i);
+        insert(treaps[a[i]], new_item);
+    }
+    for (int i = 1; i <= q; i++) {
+        p[i].second = upper_bound(values.begin(), values.end(), p[i].second) - values.begin();
+        int p1 = p[i].first + 1;
+        int p2 = p[i].second;
+        erase(treaps[a[p1]], p1);
+        pitem new_item = new item(p1);
+        insert(treaps[p2], new_item);
+        int res = getPos(treaps[p2], p1) - 1;
+        if (res <= 0) res = 0;
+        cout << res << '\n';
+        a[p1] = p2;
+    }
 
-pitem build (int * a, int n) {
-    // Construct a treap on values {a[0], a[1], ..., a[n - 1]}
-    if (n == 0) return NULL;
-    int mid = n / 2;
-    pitem t = new item (a[mid], rand());
-    t->l = build(a, mid);
-    t->r = build(a + mid + 1, n - mid - 1);
-    heapify (t);
-    upd(t);
-    return t;
-}
-
-int func(pitem t, int l, int r) {
-    pitem t1, t2, t3;
-    split(t, t1, t2, l);
-    split(t2, t2, t3, r - l + 1);
-    int ret = t2->F; // don't forget to change upd() and call it at the end of methods
-    merge(t, t1, t2);
-    merge(t, t, t3);
-    return ret;
+    return 0;
 }

@@ -1,11 +1,13 @@
-// https://cp-algorithms.com/data_structures/treap.html
+#include <bits/stdc++.h>
+
+using namespace std;
 
 mt19937 rng32(chrono::steady_clock::now().time_since_epoch().count());
 
 typedef struct item * pitem;
 struct item {
     int prior, value, cnt;
-    int F; // (for function value such as sum/min/max)
+    // int F; (for function value such as sum/min/max)
     bool rev;
     pitem l, r;
     item(int value) : prior(rng32()), value(value), cnt(0), rev(false),
@@ -42,7 +44,6 @@ void merge(pitem& t, pitem l, pitem r) {
     upd(t);
 }
 
-// l = [0..pos-1], r = [pos..sz]
 void split(pitem t, pitem& l, pitem& r, int key, int add = 0) {
     if (!t)
         return void( l = r = 0 );
@@ -72,6 +73,7 @@ void output(pitem t) {
     output(t->r);
 }
 
+// Zero Index
 void insert(pitem& t, int pos, pitem new_item) {
     if (!t) {
         t = new_item;
@@ -84,7 +86,6 @@ void insert(pitem& t, int pos, pitem new_item) {
 }
 
 void erase(pitem& t, int value) {
-    if (!t) return;
     if (t->value == value)
         merge(t, t->l, t->r);
     else
@@ -100,23 +101,28 @@ void erase_at(pitem& t, int pos) {
     merge(t, t1, t3);
 }
 
-// Zero Index
-int get_at(pitem t, int pos) {
-    pitem t1, t2, t3;
-    split(t, t1, t2, pos);
-    split(t2, t2, t3, 1);
-    int ret = t2->value;
-    merge(t1, t1, t2);
-    merge(t, t1, t3);
-    return ret;
-}
+pitem myTreap;
 
-int func(pitem t, int l, int r) {
-    pitem t1, t2, t3;
-    split(t, t1, t2, l);
-    split(t2, t2, t3, r - l + 1);
-    int ret = t2->F; // don't forget to change upd() and call it at the end of methods
-    merge(t, t1, t2);
-    merge(t, t, t3);
-    return ret;
+int main() { 
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+
+    int n;
+    cin >> n;
+    for (int i = 0; i < n; i++) {
+        pitem cur_item = new item(i + 1);
+        insert(myTreap, i, cur_item);
+    }
+    int tc, l, r;
+    cin >> tc;
+    while (tc--) {
+        cin >> l >> r;
+        l--, r--;
+        reverse(myTreap, l, r);
+    }
+    output(myTreap);
+    cout << '\n';
+
+    return 0;
 }

@@ -1,4 +1,4 @@
-void remove(idx);  // TODO: remove value at idx from data structure
+void del(idx);  // TODO: remove value at idx from data structure
 void add(idx);     // TODO: add value at idx from data structure
 int get_answer();  // TODO: extract the current answer of the data structure
 
@@ -23,22 +23,10 @@ vector<int> mo_s_algorithm(vector<Query> queries) {
     int cur_r = -1;
     // invariant: data structure will always reflect the range [cur_l, cur_r]
     for (Query q : queries) {
-        while (cur_l > q.l) {
-            cur_l--;
-            add(cur_l);
-        }
-        while (cur_r < q.r) {
-            cur_r++;
-            add(cur_r);
-        }
-        while (cur_l < q.l) {
-            remove(cur_l);
-            cur_l++;
-        }
-        while (cur_r > q.r) {
-            remove(cur_r);
-            cur_r--;
-        }
+        while (cur_l < q.l) del(cur_l++);
+        while (cur_l > q.l) add(--cur_l);
+        while (cur_r < q.r) add(++cur_r);
+        while (cur_r > q.r) del(cur_r--);
         answers[q.idx] = get_answer();
     }
     return answers;

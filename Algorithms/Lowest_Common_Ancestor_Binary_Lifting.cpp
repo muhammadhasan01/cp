@@ -1,82 +1,40 @@
-#include<bits/stdc++.h>
-#define mp make_pair
-#define pb push_back
-#define pf push_front
-#define ff first
-#define ss second
-#define inf INT_MAX
-#define MOD 1000000007
-#define forn(i,j,k) for(int i=(int)j;i<=(int)k;i++)
-#define nrof(i,j,k) for(int i=(int)j;i>=(int)k;i--)
-#define MEM(a,b) memset(a,(b),sizeof(a))
-#define LEN(x) (int)x.size()
-#define all(x) x.begin(),x.end()
-#define ll long long
-#define ld long double
-#define pll pair<long long,long long>
-#define pii pair<int,int>
+#include <bits/stdc++.h>
+
 using namespace std;
 
-// https://cp-algorithms.com
+const int N = 1e5 + 10;
+const int L = ceil(log2(N)) + 2;
 
-int n, l;
-vector<vector<int>> adj;
+int up[N][L];
+int depth[N], tin[N], tout[N], tim;
+vector<int> adj[N];
 
-int timer;
-vector<int> tin, tout;
-vector<vector<int>> up;
-
-void dfs(int v, int p)
-{
-    tin[v] = ++timer;
-    up[v][0] = p;
-    for (int i = 1; i <= l; ++i)
-        up[v][i] = up[up[v][i-1]][i-1];
-
-    for (int u : adj[v]) {
-        if (u != p)
-            dfs(u, v);
+void processLCA(int u, int p) {
+    depth[u] = 1 + (u == p ? 0 : depth[p]);
+    up[u][0] = p; tin[u] = ++tim;
+    for (int i = 1; i < L; i++)
+        up[u][i] = up[up[u][i - 1]][i - 1];
+    for (auto v : adj[u]) {
+        if (v == p) continue;
+        processLCA(v, u);
     }
-
-    tout[v] = ++timer;
+    tout[u] = ++tim;
 }
 
-bool is_ancestor(int u, int v)
-{
-    return tin[u] <= tin[v] && tout[u] >= tout[v];
-}
+bool is_anc(int u, int v) { return (tin[u] <= tin[v] && tout[u] >= tout[v]); }
 
-int lca(int u, int v)
-{
-    if (is_ancestor(u, v))
-        return u;
-    if (is_ancestor(v, u))
-        return v;
-    for (int i = l; i >= 0; --i) {
-        if (!is_ancestor(up[u][i], v))
-            u = up[u][i];
+int LCA(int u, int v) {
+    if (is_anc(u, v)) return u;
+    if (is_anc(v, u)) return v;
+    for (int i = L - 1; i >= 0; i--) {
+        if (!is_anc(up[u][i], v)) u = up[u][i];
     }
     return up[u][0];
 }
 
-void preprocess(int root) {
-    tin.resize(n);
-    tout.resize(n);
-    timer = 0;
-    l = ceil(log2(n));
-    up.assign(n, vector<int>(l + 1));
-    dfs(root, root);
+int dist(int u, int v) {
+    int w = LCA(u, v);
+    return depth[u] + depth[v] - 2 * depth[w];
 }
 
-
-int main(){
-    ios_base::sync_with_stdio(0);
-    cin.tie(0);
-    cout.tie(0);
-
-
-
-
-
-    return 0;
-}
+int main() { return 0; }

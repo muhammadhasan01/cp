@@ -5,13 +5,14 @@ using namespace std;
 const int N = 1e5 + 5;
 const int INF = 1e9;
 
-int n, m;
+int n, q;
 int nodes;
 vector<int> adj[N];
 deque<int> dist[N];
 int parc[N], sz[N];
 bool checked[N];
-int ans[N];
+bitset<N> vis;
+multiset<int> ans[N];
 
 void dfs(int u, int p) {
     nodes++; sz[u] = 1;
@@ -50,49 +51,55 @@ void decompose(int u, int p) {
     }
 }
 
-void update(int u) {
+void upd(int u) {
     int curNode = u, cnt = 0;
-    while (1) {
-        ans[u] = min(ans[u], dist[curNode][cnt++]);
-        if (parc[u] == -1) break;
-        u = parc[u];
+    if (vis[u]) {
+        while (1) {
+            ans[u].erase(ans[u].find(dist[curNode][cnt++]));
+            if (parc[u] == -1) break;
+            u = parc[u];
+        }
+    } else {
+        while (1) {
+            ans[u].emplace(dist[curNode][cnt++]);
+            if (parc[u] == -1) break;
+            u = parc[u];
+        }
     }
+    vis[curNode] = 1 - vis[curNode];
 }
 
 int query(int u) {
-    int curNode = u, cnt = 0, minD = INF;
+    int ret = INF, cnt = 0;
+    int curNode = u;
     while (1) {
-        minD = min(minD, dist[curNode][cnt++] + ans[u]);
+        if (!ans[u].empty()) ret = min(ret, *ans[u].begin() + dist[curNode][cnt]);
+        cnt++;
         if (parc[u] == -1) break;
         u = parc[u];
     }
-    return minD;
+    return ret;
 }
 
 int main() {
-    ios_base::sync_with_stdio(0);
-    cin.tie(0);
-    cout.tie(0);
-
-    cin >> n >> m;
-    for (int i = 1; i <= n - 1; i++) {
-        int u, v;
-        cin >> u >> v;
+    scanf("%d", &n);
+    int u, v;
+    for (int i = 1; i < n; i++) {
+        scanf("%d %d", &u, &v);
         adj[u].emplace_back(v);
         adj[v].emplace_back(u);
     }
     decompose(1, -1);
-    fill(ans + 1, ans + 1 + n, INF);
-    update(1);
-    for (int i = 1; i <= m; i++) {
-        int t, x;
-        cin >> t >> x;
-        if (t == 1) {
-            update(x);
-        } else if (t == 2) {
-            cout << query(x) << '\n';
+    scanf("%d", &q);
+    while (q--) {
+        scanf("%d %d", &u, &v);
+        if (u) {
+            int res = query(v);
+            if (res == INF) res = -1;
+            printf("%d\n", res);
+        } else {
+            upd(v);
         }
     }
-
     return 0;
 }

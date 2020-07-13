@@ -1,47 +1,44 @@
-// https://github.com/Ashishgup1/Competitive-Coding/blob/master/Centroid%20Decomposition.cpp
-int subtree[N], parentcentroid[N];
-set<int> g[N];
+const int N = 1e5 + 10;
 
-void dfs(int k, int par)
-{
-	nodes++;
-	subtree[k]=1;
-	for(auto it:g[k])
-	{
-		if(it==par)
-			continue;
-		dfs(it, k);
-		subtree[k]+=subtree[it];
-	}
+int nodes;
+vector<int> adj[N];
+deque<int> dist[N];
+int parc[N], sz[N];
+bool checked[N];
+
+void dfs(int u, int p) {
+    nodes++; sz[u] = 1;
+    for (auto v : adj[u]) {
+        if (v == p || checked[v]) continue;
+        dfs(v, u);
+        sz[u] += sz[v];
+    }
 }
 
-int centroid(int k, int par)
-{
-	for(auto it:g[k])
-	{
-		if(it==par)
-			continue;
-		if(subtree[it]>(nodes>>1))
-			return centroid(it, k);
-	}
-	return k;
+void dfs2(int u, int p, int d) {
+    dist[u].emplace_front(d);
+    for (auto v : adj[u]) {
+        if (v == p || checked[v]) continue;
+        dfs2(v, u, d + 1);
+    }
 }
 
-void decompose(int k, int par)
-{
-	nodes=0;
-	dfs(k, k);
-	int node=centroid(k, k);
-	parentcentroid[node]=par;
-	for(auto it:g[node])
-	{
-		g[it].erase(node);
-		decompose(it, node);
-	}
+int centroid(int u, int p) {
+    for (auto v : adj[u]) {
+        if (v == p || checked[v]) continue;
+        if (sz[v] > nodes) return centroid(v, u);
+    }
+    return u;
 }
 
-//Problem 1: https://codeforces.com/contest/322/problem/E
-//Solution 1: https://codeforces.com/contest/322/submission/45791742
-
-//Problem 2: https://codeforces.com/contest/342/problem/E
-//Solution 2: https://codeforces.com/contest/342/problem/E
+void decompose(int u, int p) {
+    nodes = 0; dfs(u, u); nodes /= 2;
+    int v = centroid(u, u);
+    checked[v] = 1;
+    dfs2(v, v, 0);
+    parc[v] = p;
+    for (auto w : adj[v]) {
+        if (checked[w]) continue;
+        decompose(w, v);
+    }
+}

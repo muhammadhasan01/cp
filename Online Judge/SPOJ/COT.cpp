@@ -1,125 +1,162 @@
-// TLE :(
 #include <iostream>
-#include <vector>
 #include <algorithm>
+#include <vector>
+#include <cmath>
 
 using namespace std;
 
-const int N = 1e5 + 10;
+#define inchar          getchar
+#define outchar(x)      putchar(x)
+
+template < typename T > void inpos(T & x) {
+    x = 0;
+    register T c = inchar();
+    while (((c < 48) || (c > 57)) && (c != '-')) c = inchar();
+    bool neg = false;
+    if (c == '-') neg = true;
+    for (; c < 48 || c > 57; c = inchar());
+    for (; c > 47 && c < 58; c = inchar()) x = (x << 3) + (x << 1) + (c & 15);
+    if (neg) x = -x;
+}
+template < typename T > void outpos(T n) {
+    if (n < 0) {
+        outchar('-');
+        n *= -1;
+    }
+    char snum[65];
+    int i = 0;
+    do {
+        snum[i++] = n % 10 + '0';
+        n /= 10;
+    } while (n);
+    i = i - 1;
+    while (i >= 0) outchar(snum[i--]);
+    outchar('\n');
+}
+
+struct vertex {
+    int val;
+    vertex *l, *r;
+    vertex(int val) : val(val), l(NULL), r(NULL) { }
+    vertex(vertex* l, vertex* r) : val(0), l(l), r(r) {
+        if (l) val += l->val;
+        if (r) val += r->val;
+    }
+};
+typedef vertex* pvertex;
+
+const int N = 100005;
+const int L = 19;
 
 int n, m;
-vector<int> adj[N];
-int val[N], id[N];
-int depth[N], head[N], heavy[N], par[N];
-int pos[N];
-int curPos;
-vector<int> t[4 * N];
+pair<int, int> nums[N];
+int * adj[N];
+int deg[N];
+int a[N], id[N];
+int up[N][L];
+int tin[N], tout[N], tim = 0;
+pvertex segtree[N];
 
-void build(int v, int s, int e) {
-    if (s == e) {
-        t[v] = vector<int>(1, val[id[s]]);
-    } else {
-        int mid = (s + e) >> 1;
-        build(v << 1, s, mid);
-        build(v << 1 | 1, mid + 1, e);
-        merge(t[v << 1].begin(), t[v << 1].end(), t[v << 1 | 1].begin(),
-              t[v << 1 | 1].end(), back_inserter(t[v]));
-    }
-}
-
-int get(int v, int s, int e, int l, int r, int val) {
-    if (e < l || s > r || l > r) return 0;
-    if (l <= s && e <= r) {
-        cerr << "----\n";
-        for (auto& e : t[v]) cerr << e << ' ';
-        cerr << "\n---\n";
-        int res = upper_bound(t[v].begin(), t[v].end(), val) - t[v].begin();
-        return res;
-    }
+pvertex build(int s, int e) {
+    if (s == e)
+        return new vertex(a[s]);
     int mid = (s + e) >> 1;
-    int p1 = get(v << 1, s, mid, l, r, val);
-    int p2 = get(v << 1 | 1, mid + 1, e, l, r, val);
-    return p1 + p2;
+    return new vertex(build(s, mid), build(mid + 1, e));
 }
 
-int dfs(int u, int p) {
-    depth[u] = 1 + (u == p ? 0 : depth[p]);
-    par[u] = p;
-    int sz = 1, max_sz = 0;
-    for (auto v : adj[u]) {
+pvertex update(pvertex v, int s, int e, int pos, int val) {
+    if (s == e && s == pos)
+        return new vertex(val);
+    int mid = (s + e) >> 1;
+    if (pos <= mid)
+        return new vertex(update(v->l, s, mid, pos, val), v->r);
+    else
+        return new vertex(v->l, update(v->r, mid + 1, e, pos, val));
+}
+
+int getQuery(pvertex u, pvertex v, pvertex w, pvertex pw, int s, int e, int val) {
+    if (s == e) return s;
+    int leftval = u->l->val + v->l->val - w->l->val - pw->l->val;
+    int mid = (s + e) / 2;
+    if (val <= leftval)
+        return getQuery(u->l, v->l, w->l, pw->l, s, mid, val);
+    else
+        return getQuery(u->r, v->r, w->r, pw->r, mid + 1, e, val - leftval);
+}
+
+void dfs(int u, int p) {
+    up[u][0] = p;
+    for (int i = 1; i < L; i++) {
+        up[u][i] = up[up[u][i - 1]][i - 1];
+    }
+    tin[u] = ++tim;
+    for (int i = 0; i < deg[u]; i++) {
+        int v = adj[u][i];
         if (v == p) continue;
-        int res = dfs(v, u);
-        sz += res;
-        if (res > max_sz)
-            max_sz = res, heavy[u] = v; 
+        segtree[v] = update(segtree[u], 1, n, a[v], 1);
+        dfs(v, u);
     }
-    return sz;
+    tout[u] = ++tim;
 }
 
-void decompose(int u, int h) {
-    head[u] = h, pos[u] = ++curPos;
-    id[curPos] = u;
-    if (heavy[u])
-        decompose(heavy[u], h);
-    for (auto v : adj[u])
-        if (v != par[u] && v != heavy[u])
-            decompose(v, v);
+bool is_anc(int u, int v) {
+    return (tin[u] <= tin[v] && tout[u] >= tout[v]);
 }
 
-int queryPath(int u, int v, int val) {
-    int res = 0;
-    for (; head[u] != head[v]; u = par[head[u]]) {
-        if (depth[head[u]] < depth[head[v]]) swap(u, v);
-        res += get(1, 1, curPos, pos[head[u]], pos[u], val);
+int LCA(int u, int v) {
+    if (is_anc(u, v)) return u;
+    if (is_anc(v, u)) return v;
+    for (int i = L - 1; i >= 0; i--) {
+        if (!is_anc(up[u][i], v))
+            u = up[u][i];
     }
-    if (depth[u] > depth[v]) swap(u, v);
-    res += get(1, 1, curPos, pos[u], pos[v], val);
-    // cerr << res << '\n';
-    return res;
+    return up[u][0];
 }
 
-void init() {
-    dfs(1, 1);
-    decompose(1, 1);
+int getz(int u, int v, int w, int pw, int val) {
+    return getQuery(segtree[u], segtree[v], segtree[w], segtree[pw], 1, n, val);
+}
+
+int query(int u, int v, int k) {
+    int w = LCA(u, v);
+    int pw = (w == 1 ? 0 : up[w][0]);
+    return id[getz(u, v, w, pw, k)];
 }
 
 int main() {
-	scanf("%d %d", &n, &m);
-    vector<int> uniq(n), value(n);
+    inpos(n), inpos(m);
+    segtree[0] = build(1, n);
     for (int i = 1; i <= n; i++) {
-        scanf("%d", &val[i]);
-        uniq[i - 1] = val[i];
+        inpos(a[i]);
+        nums[i].first = a[i];
+        nums[i].second = i;
     }
-    sort(uniq.begin(), uniq.end());
-    uniq.resize(unique(uniq.begin(), uniq.end()) - uniq.begin());
+    sort(nums + 1, nums + 1 + n);
     for (int i = 1; i <= n; i++) {
-        val[i] = lower_bound(uniq.begin(), uniq.end(), val[i]) - uniq.begin();
+        a[nums[i].second] = i;
+        id[i] = nums[i].first;
     }
-    int sz = uniq.size();
-    for (int i = 0; i < sz; i++) {
-        value[i] = uniq[i];
-    }
+    segtree[1] = update(segtree[0], 1, n, a[1], 1);
     int u, v, k;
     for (int i = 1; i < n; i++) {
-    	scanf("%d %d", &u, &v);
-        adj[u].emplace_back(v);
-        adj[v].emplace_back(u);
+        inpos(u), inpos(v);
+        nums[i].first = u, nums[i].second = v;
+        deg[u]++, deg[v]++;
     }
-    init();
-    build(1, 1, n);
+    for (int i = 1; i <= n; i++) {
+        adj[i] = new int[deg[i]];
+        deg[i] = 0;
+    }
+    for (int i = 1; i < n; i++) {
+        int u = nums[i].first, v = nums[i].second;
+        adj[u][deg[u]++] = v;
+        adj[v][deg[v]++] = u;
+    }
+    dfs(1, 1);
     while (m--) {
-    	scanf("%d %d %d", &u, &v, &k);
-        int l = 0, r = sz - 1, ans = n;
-        while (l <= r) {
-            int mid = (l + r) >> 1;
-            if (queryPath(u, v, mid) >= k) {
-                ans = uniq[mid];
-                r = mid - 1;
-            } else {
-                l = mid + 1;
-            }
-        }
-    	printf("%d\n", ans);
+        inpos(u), inpos(v), inpos(k);
+        int res = query(u, v, k);
+        outpos(res);
     }
 
     return 0;

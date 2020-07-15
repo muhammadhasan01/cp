@@ -92,17 +92,18 @@ int kth_number(pitem t, int pos) {
         return kth_number(t->r, pos - curpos);
 }
 
-const int INF = 2e9;
-
 int getPos(pitem t, int val) {
     if (!t)
-        return -INF;
+        return -1;
     if (t->key == val)
         return 1 + cnt(t->l);
-    else if (val > t->key)
-        return 1 + cnt(t->l) + getPos(t->r, val);
-    else
+    else if (val > t->key) {
+        int temp = getPos(t->r, val);
+        if (temp == -1) return -1;
+        return 1 + cnt(t->l) + temp;
+    } else {
         return getPos(t->l, val);
+    }
 }
 
 pitem unite(pitem l, pitem r) {

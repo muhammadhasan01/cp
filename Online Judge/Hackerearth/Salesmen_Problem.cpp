@@ -1,16 +1,25 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+const int N = 5e2 + 5;
 const long long INF = 1e18;
 
-struct Edge {
+struct Edge
+{
     int from, to;
     long long capacity, cost;
     Edge(int from, int to, long long cap, long long cost) : 
     from(from), to(to), capacity(cap), cost(cost) { }
 };
 
+int n, m;
+long long a[N], dp[N][N];
 vector<vector<int>> adj;
 vector<vector<long long>> cost, capacity;
+vector<Edge> edges;
 
-void shortest_paths(int n, int v0, vector<long long>& d, vector<int>& p) {
+void shortest_paths(int n, int v0, vector<long long>& d, vector<long long>& p) {
     d.assign(n, INF);
     d[v0] = 0;
     vector<bool> inq(n, false);
@@ -49,8 +58,7 @@ long long min_cost_flow(int N, const vector<Edge>& edges, long long K, int s, in
 
     long long flow = 0;
     long long cost = 0;
-    vector<long long> d;
-    vector<int> p;
+    vector<long long> d, p;
     while (flow < K) {
         shortest_paths(N, s, d, p);
         if (d[t] == INF)
@@ -75,6 +83,53 @@ long long min_cost_flow(int N, const vector<Edge>& edges, long long K, int s, in
         }
     }
 
-    if (flow < K) return -1;
     return cost;
+}
+
+int main() { 
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+
+    cin >> n >> m;
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= n; j++) {
+            dp[i][j] = (i == j ? 0LL : INF);
+        }
+    }
+    for (int i = 1; i <= n; i++) {
+        cin >> a[i];
+    }
+    for (int i = 1; i <= m; i++) {
+        int u, v;
+        long long w;
+        cin >> u >> v >> w;
+        dp[u][v] = min(dp[u][v], w);
+    }
+    for (int k = 1; k <= n; k++) {
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= n; j++) {
+                if (dp[i][k] == INF || dp[k][j] == INF) continue;
+                dp[i][j] = min(dp[i][j], dp[i][k] + dp[k][j]);  
+            }
+        }
+    }
+    int nodes = n + n + 2;
+    int source = n + n, sink = n + n + 1;
+    for (int i = 0; i < n; i++) {
+        edges.emplace_back(source, i, 1, 0);
+        edges.emplace_back(i + n, sink, 1, 0);
+    }
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (i == j) {
+                edges.emplace_back(i, j + n, 1, a[i + 1]);
+            } else {
+                edges.emplace_back(i, j + n, 1, dp[i + 1][j + 1]);
+            }
+        }
+    }
+    cout << min_cost_flow(nodes, edges, INF, source, sink) << '\n';
+
+    return 0;
 }

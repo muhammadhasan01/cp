@@ -2,6 +2,8 @@
 
 using namespace std;
 
+const int INF = 1e8;
+
 struct FlowEdge {
     int v, u;
     int cap, flow = 0;
@@ -89,45 +91,45 @@ int main() {
     cin.tie(0);
     cout.tie(0);
 
-    int n, m, k;
-    cin >> n >> m >> k;
-    int nodes = n + m + 2;
+    int n;
+    cin >> n;
+    int total = 0;
+    vector<int> val(n);
+    for (int i = 0; i < n; i++) {
+        cin >> val[i];
+        if (val[i] > 0) total += val[i];
+    }
+    int nodes = n + 2;
     int source = nodes - 2, sink = nodes - 1;
-    Dinic dinic(nodes, source, sink);
-    for (int i = 0; i < n; i++)
-        dinic.add_edge(source, i, 1);
-    for (int i = 0; i < k; i++) {
-        int x, y;
-        cin >> x >> y;
-        dinic.add_edge(x - 1, y - 1 + n, 1);
+    function<bool(int)> can = [&](int x) {
+        Dinic dinic(nodes, source, sink);
+        for (int i = 0; i < n; i++) {
+            if (val[i] > 0)
+                dinic.add_edge(source, i, val[i]);
+            else if (val[i] < 0)
+                dinic.add_edge(i, sink, -val[i]);
+        }
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (i == j) continue;
+                if (val[i] < 0 && val[j] > 0) continue;
+                dinic.add_edge(i, j, x);
+            }
+        }
+        int res = dinic.flow();
+        return (res == total);
+    };
+    int l = 0, r = INF, ans = INF;
+    while (l <= r) {
+        int mid = (l + r) >> 1;
+        if (can(mid)) {
+            r = mid - 1;
+            ans = mid;
+        } else {
+            l = mid + 1;
+        }
     }
-    vector<int> pos(m);
-    for (int i = 0; i < m; i++) {
-        int val;
-        cin >> val;
-        pos[i] = dinic.m;
-        dinic.add_edge(i + n, sink, val);
-    }
-    int z;
-    cin >> z;
-    vector<pair<int, int>> red(z);
-    for (int i = 0; i < z; i++) {
-        int r, p;
-        cin >> r >> p;
-        dinic.edges[pos[--r]].cap -= p;
-        red[i] = make_pair(r, p);
-    }
-    reverse(red.begin(), red.end());
-    vector<int> ans(z);
-    int res = dinic.flow();
-    for (int i = 0; i < z; i++) {
-        dinic.edges[pos[red[i].first]].cap += red[i].second;
-        res += dinic.flow();
-        ans[z - i - 1] = res;
-    }
-    for (int i = 0; i < z; i++) {
-        cout << ans[i] << '\n';
-    }
+    cout << ans << '\n';
 
     return 0;
 }

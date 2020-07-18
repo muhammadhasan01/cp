@@ -1,69 +1,34 @@
-#include<bits/stdc++.h>
-#define mp make_pair
-#define pb push_back
-#define ff first
-#define ss second
-#define inf INT_MAX
-#define MOD 1000000007
-#define MEM(a,b) memset(a,(b),sizeof(a))
-#define ll long long
-#define pll pair<long long,long long>
-#define pii pair<int,int>
-using namespace std;
-
-// https://www.geeksforgeeks.org/bellman-ford-algorithm-dp-23/
-
-// n -> number of vertices
-// m -> number of edges
-int t,n,m,x,y,s,r,d;
-
-bool BellmanFord(pair<int,pii> a[]){
-
-    vector<int> dist(n+2,inf);
-    dist[s] = 0;
-
-    for(int i=1; i<=n-1;i++){
-        for(int j=1; j<=m; j++){
-            int u = a[j].ss.ff; // source
-            int v = a[j].ss.ss; // destination
-            int w = a[j].ff; // weight
-            if(dist[u] != inf && dist[v] > dist[u]+w){
-                dist[v] = dist[u]+w;
-            }
-        }
-    }
-    if(dist[d]==inf)dist[d] = 0;
-    cout << dist[d] << "\n";
-
-    // checking for negative cycle
-    for(int j=1; j<=m; j++){
-        int u = a[j].ss.ff;
-        int v = a[j].ss.ss;
-        int w = a[j].ff;
-        if(dist[u] != inf && dist[v] > dist[u]+w){
-            return true;
-        }
-    }
-    return false;
-}
-
-int main()
+void solve()
 {
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
-    cout.tie(NULL);
+    vector<int> d (n, INF);
+    d[v] = 0;
+    vector<int> p (n, -1);
 
-    cin >> t;
-    while(t--){
-        cin >> n >> m;
-        pair<int,pii> a[m+2];
-        for(int i=1; i<=m;i++){
-            cin >> x >> y >> r;
-            a[i] = mp(r,mp(x,y));
-        }
-        cin >> s >> d;
-        BellmanFord(a);
+    for (;;)
+    {
+        bool any = false;
+        for (int j = 0; j < m; ++j)
+            if (d[e[j].a] < INF)
+                if (d[e[j].b] > d[e[j].a] + e[j].cost)
+                {
+                    d[e[j].b] = d[e[j].a] + e[j].cost;
+                    p[e[j].b] = e[j].a;
+                    any = true;
+                }
+        if (!any)  break;
     }
 
-    return 0;
+    if (d[t] == INF)
+        cout << "No path from " << v << " to " << t << ".";
+    else
+    {
+        vector<int> path;
+        for (int cur = t; cur != -1; cur = p[cur])
+            path.push_back (cur);
+        reverse (path.begin(), path.end());
+
+        cout << "Path from " << v << " to " << t << ": ";
+        for (size_t i=0; i<path.size(); ++i)
+            cout << path[i] << ' ';
+    }
 }

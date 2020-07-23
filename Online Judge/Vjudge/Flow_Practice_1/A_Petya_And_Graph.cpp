@@ -1,3 +1,7 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
 const long long INF = 1e18;
 
 struct FlowEdge {
@@ -81,3 +85,38 @@ struct Dinic {
         return f;
     }
 };
+
+int main() { 
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+
+    int n, m;
+    cin >> n >> m;
+    int nodes = n + m + 2;
+    int source = nodes - 2, sink = nodes - 1;
+    Dinic dinic(nodes, source, sink);
+    long long total = 0;
+    long long res = 0;
+    for (int i = 0; i < n; i++) {
+        int x;
+        cin >> x;
+        total -= x;
+        dinic.add_edge(source, i, x);
+        res += x;
+    }
+    for (int i = 0; i < m; i++) {
+        int u, v, w;
+        cin >> u >> v >> w;
+        --u, --v;
+        total += w;
+        dinic.add_edge(u, i + n, INF);
+        dinic.add_edge(v, i + n, INF);
+        dinic.add_edge(i + n, sink, w);
+    }
+    long long flow = dinic.flow();
+    res -= flow;
+    cout << total + res << '\n';
+
+    return 0;
+}

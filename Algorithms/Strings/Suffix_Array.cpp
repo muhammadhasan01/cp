@@ -1,8 +1,4 @@
 // https://cp-algorithms.com/string/suffix-array.html
-#include <bits/stdc++.h>
-
-using namespace std;
-
 vector<int> sort_cyclic_shifts(string const& s) {
     int n = s.size();
     const int alphabet = 256;

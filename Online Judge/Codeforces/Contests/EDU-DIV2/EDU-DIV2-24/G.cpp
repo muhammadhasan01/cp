@@ -43,26 +43,24 @@ struct Edge {
     from(from), to(to), capacity(cap), cost(cost) { }
 };
 
-vector<vector<pair<int, int>>> adj;
-unordered_map<int, int> capacity[NMAX];
-vector<Edge> edges;
+vector<vector<int>> adj;
+vector<vector<int>> cost, capacity;
 
-void shortest_paths(int n, int v0, vector<int>& d, vector<int>& p, int t) {
+void shortest_paths(int n, int v0, vector<int>& d, vector<int>& p) {
     d.assign(n, INF);
     d[v0] = 0;
     priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> q;
     q.emplace(d[v0], v0);
     p.assign(n, -1);
+
     while (!q.empty()) {
         auto cur = q.top();
         q.pop();
         int dist = cur.first, u = cur.second;
         if (dist != d[u]) continue;
-        for (auto& e : adj[u]) {
-            int v = e.first;
-            int cst = e.second;
-            if (capacity[u][v] > 0 && d[v] > d[u] + cst) {
-                d[v] = d[u] + cst;
+        for (int v : adj[u]) {
+            if (capacity[u][v] > 0 && d[v] > d[u] + cost[u][v]) {
+                d[v] = d[u] + cost[u][v];
                 p[v] = u;
                 q.emplace(d[v], v);
             }
@@ -70,11 +68,15 @@ void shortest_paths(int n, int v0, vector<int>& d, vector<int>& p, int t) {
     }
 }
 
-int min_cost_flow(int N, int K, int s, int t) {
-    adj.assign(N, vector<pair<int, int>>());
+int min_cost_flow(int N, const vector<Edge>& edges, int K, int s, int t) {
+    adj.assign(N, vector<int>());
+    cost.assign(N, vector<int>(N, 0));
+    capacity.assign(N, vector<int>(N, 0));
     for (Edge e : edges) {
-        adj[e.from].emplace_back(e.to, e.cost);
-        adj[e.to].emplace_back(e.from, -e.cost);
+        adj[e.from].emplace_back(e.to);
+        adj[e.to].emplace_back(e.from);
+        cost[e.from][e.to] = e.cost;
+        cost[e.to][e.from] = -e.cost;
         capacity[e.from][e.to] = e.capacity;
     }
 
@@ -83,7 +85,7 @@ int min_cost_flow(int N, int K, int s, int t) {
     vector<int> d;
     vector<int> p;
     while (flow < K) {
-        shortest_paths(N, s, d, p, t);
+        shortest_paths(N, s, d, p);
         if (d[t] == INF)
             break;
 
@@ -109,20 +111,25 @@ int min_cost_flow(int N, int K, int s, int t) {
     return cost;
 }
 
-const int N = 5e3 + 5;
+const int N = 3e3 + 5;
 
 int n;
 int a[N];
 
-int main() {
+int main() { 
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+
     int n;
     inpos(n);
     for (int i = 1; i <= n; i++) {
         inpos(a[i]);
     }
+    vector<Edge> edges;
     int nodes = 2 * n + 3;
     int source = nodes - 2, sink = nodes - 1;
-    edges.emplace_back(source, 0, 2, 0);
+    edges.emplace_back(source, 0, 4, 0);
     for (int i = 1; i <= n; i++) {
         edges.emplace_back(0, i, 1, 0);
         edges.emplace_back(i, i + n, 1, -1);
@@ -138,7 +145,7 @@ int main() {
             }
         }
     }
-    int ans = -min_cost_flow(nodes, INF, source, sink);
+    int ans = -min_cost_flow(nodes, edges, INF, source, sink);
     outpos(ans);
 
     return 0;

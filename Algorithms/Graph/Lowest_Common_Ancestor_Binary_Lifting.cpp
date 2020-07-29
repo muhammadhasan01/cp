@@ -10,7 +10,7 @@ int depth[N], tin[N], tout[N], tim;
 vector<int> adj[N];
 
 void processLCA(int u, int p) {
-    depth[u] = 1 + (u == p ? 0 : depth[p]);
+    depth[u] = (u == p ? 0 : 1 + depth[p]);
     up[u][0] = p; tin[u] = ++tim;
     for (int i = 1; i < L; i++)
         up[u][i] = up[up[u][i - 1]][i - 1];
@@ -32,7 +32,7 @@ int LCA(int u, int v) {
     return up[u][0];
 }
 
-int dist(int u, int v) {
+int distance(int u, int v) {
     int w = LCA(u, v);
     return depth[u] + depth[v] - 2 * depth[w];
 }

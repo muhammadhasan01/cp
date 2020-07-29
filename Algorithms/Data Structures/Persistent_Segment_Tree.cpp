@@ -10,6 +10,7 @@ struct vertex {
 typedef vertex* pvertex;
 
 const int N = 1e5 + 5;
+
 int n;
 int a[N];
 pvertex psegtree[N];

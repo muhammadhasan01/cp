@@ -42,7 +42,7 @@ int main(){
         while(!st.empty()){
             cout << st.top();
             st.pop();
-            cout << (st.empty() ? '\n')
+            cout << (st.empty() ? '\n' : ' ');
         }
     }else{
         for(int i=1;i<=(int)st.size();i++){

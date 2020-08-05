@@ -1,7 +1,7 @@
 #include<bits/stdc++.h>
 using namespace std;
 
-const int N = 30;
+const int N = 26;
 int n,q;
 string s;
 long long cnt[N];
@@ -12,13 +12,12 @@ int main(){
     cout.tie(0);
 
     cin >> n >> q >> s;
-    for(auto e:s)cnt[e - 'A']++;
+    for(auto& e:s)cnt[e - 'A']++;
     for(int i=1;i<=q;i++){
         char x;
-        string y;
-        cin >> x >> y;
-        int temp = cnt[x - 'A'];
-        for(auto e: y){
+        cin >> x >> s;
+        long long temp = cnt[x - 'A'];
+        for(auto& e: s){
             cnt[e - 'A'] += temp;
         }
         cnt[x - 'A'] -= temp;

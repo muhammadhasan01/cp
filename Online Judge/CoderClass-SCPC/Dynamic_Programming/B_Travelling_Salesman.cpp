@@ -1,4 +1,3 @@
-// WA (???)
 #include <bits/stdc++.h>
 
 using namespace std;
@@ -21,14 +20,18 @@ int main() {
             cin >> mat[i][j];
         }
     }
-    int maks = (1 << (n - 1));
-    for (int i = 0; i < maks; i++) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            mat[i][j] = min(mat[i][j], mat[j][i]);
+        }
+    }
+    for (int i = 0; i < (1 << (n - 1)); i++) {
         for (int j = 0; j < n - 1; j++) {
             dp[i][j] = INF;
         }
     }
     dp[0][0] = 0;
-    for (int i = 1; i < maks; i++) {
+    for (int i = 1; i < (1 << (n - 1)); i++) {
         for (int j = 0; j < (n - 1); j++) {
             if (!(i & (1 << j))) continue;
             bool single = true;
@@ -44,7 +47,7 @@ int main() {
     }
     int ans = INF;
     for (int j = 0; j < (n - 1); j++) {
-        ans = min(ans, dp[maks - 1][j] + mat[j + 1][0]);
+        ans = min(ans, dp[(1 << (n - 1)) - 1][j] + mat[j + 1][0]);
     }
     cout << ans << '\n';
 

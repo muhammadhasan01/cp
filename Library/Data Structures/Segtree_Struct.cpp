@@ -3,7 +3,7 @@ const int N = 2e5 + 5;
 struct Segtree {
     vector<int> t;
     Segtree() {
-        t.assign(4 * N);
+        t.assign(4 * N, 0);
     }
 
     int combine(int x, int y) {

@@ -3,9 +3,8 @@
 using namespace std;
 
 const int N = 2e5 + 10;
-const long long M = 1e9 + 7;
-const long long P[2] = {31, 37};
 
+mt19937 rng32(chrono::steady_clock::now().time_since_epoch().count());
 #pragma GCC target ("avx2")
 #pragma GCC optimization ("O3")
 #pragma GCC optimization ("unroll-loops")
@@ -38,48 +37,11 @@ template<typename T> void outpos(T n) {
 }
 
 int n, m;
-int nodes;
 vector<int> adj[N];
-int par[N], sz[N];
-bitset<N> checked;
-bitset<N> bad;
-long long HASH[2], K[2];
-
-void dfs(int u, int p) {
-    nodes++; sz[u] = 1;
-    for (auto v : adj[u]) {
-        if (v == p || checked[v] == 1) continue;
-        dfs(v, u);
-        sz[u] += sz[v];
-    }
-}
-
-int centroid(int u, int p) {
-    for (auto v : adj[u]) {
-        if (v == p || checked[v] == 1) continue;
-        if (sz[v] > nodes) return centroid(v, u);
-    }
-    return u;
-}
-
-void decompose(int u, int p, int h) {
-    nodes = 0; dfs(u, u); nodes /= 2;
-    int v = centroid(u, u);
-    checked[v] = 1;
-    for (int it = 0; it < 2; it++) {    
-        K[it] = (K[it] * P[it]) % M; HASH[it] = (HASH[it] + K[it]);
-        K[it] = (K[it] * P[it]) % M; HASH[it] = (HASH[it] + (K[it] * (long long) h)) % M;
-    }
-    // cerr << "("; cerr << char(int('a') + h);
-    for (auto w : adj[v]) {
-        if (checked[w] == 1) continue;
-        decompose(w, v, h + 1);
-    }
-    // cerr << ")";
-    for (int it = 0; it < 2; it++) {
-        K[it] = (K[it] * P[it]) % M; HASH[it] = (HASH[it] + K[it]);
-    }
-}
+vector<int> comp[N];
+int par[N], dist[N], dist2[N];
+long long shaker[N];
+bitset<N> vis, bad;
 
 int fpar(int x) {
     if (par[x] == x) return x;
@@ -94,9 +56,77 @@ bool merge(int u, int v) {
     return true;
 }
 
+void dfs(int u) {
+    vis[u] = 1;
+    for (auto& v : adj[u]) {
+        if (vis[v]) continue;
+        dist[v] = dist[u] + 1;
+        dfs(v);
+    }
+}
+
+pair<int, int> find_center(int k) {
+    const int U = k;
+    for (int it = 0; it < 2; it++) {
+        dist[k] = 0; dfs(k);
+        int maks = 0, pos = k;
+        for (auto& u : comp[U]) {
+            dist2[u] = dist[u], vis[u] = 0;
+            if (dist[u] > maks)
+                maks = dist[u], pos = u;
+        }
+        k = pos;
+    }
+    dist[k] = 0; dfs(k);
+    int diameter = 0;
+    for (auto& u : comp[U]) {
+        if (dist[u] > diameter) diameter = dist[u];
+    }
+    pair<int, int> ret = {-1, -1};
+    for (auto& u : comp[U]) {
+        if (dist[u] != diameter / 2 && dist2[u] != diameter / 2) continue;
+        if (dist[u] + dist2[u] != diameter) continue;
+        if (ret.first == -1)
+            ret.first = u;
+        else
+            ret.second = u;
+    }
+    return ret;
+}
+
+long long rec(int u) {
+    vis[u] = 1;
+    long long ret = 1;
+    vector<long long> Hash;
+    for (auto& v : adj[u]) {
+        if (vis[v]) continue;
+        Hash.emplace_back(rec(v));
+    }
+    sort(Hash.begin(), Hash.end());
+    for (int i = 0; i < (int) Hash.size(); i++) {
+        ret = (ret + Hash[i] * shaker[i]);
+    }
+    return ret;
+}
+
+long long get_Hash(int k) {
+    pair<int, int> center = find_center(k);
+    int root = center.first;
+    if (center.second != -1) {
+        root = 0; adj[root].clear(); vis[root] = 0;
+        int u = center.first, v = center.second;
+        adj[root].emplace_back(u); adj[root].emplace_back(v);
+        *find(adj[u].begin(), adj[u].end(), v) = root;
+        *find(adj[v].begin(), adj[v].end(), u) = root;
+    }
+    for (auto& u : comp[k]) vis[u] = 0;
+    return rec(root);
+}
+
 void init() {
-    for (int i = 1; i <= n; i++) {
+    for (int i = 0; i < N; i++) {
         par[i] = i;
+        shaker[i] = rand();
     }
 }
 
@@ -113,25 +143,22 @@ int main() {
         }
     }
     for (int i = 1; i <= n; i++) {
-        if (!bad[i]) continue;
         int pp = fpar(i);
+        if (!bad[i]) {
+            comp[pp].emplace_back(i);
+            continue;
+        }
         bad[pp] = 1;
     }
-    long long res = 0;
-    map<pair<int, int>, int> mp;
+    long long ans = 0;
+    map<long long, int> mp;
     for (int i = 1; i <= n; i++) {
         if (bad[i]) continue;
         if (fpar(i) != i) continue;
-        for (int it = 0; it < 2; it++) {
-            HASH[it] = 0, K[it] = 1;
-        }
-        decompose(i, i, 2);
-        // cerr << '\n';
-        // cerr << i << " => " << HASH[it] << "\n";
-        pair<int, int> cur = make_pair(HASH[0], HASH[1]);
-        res += (1LL) * mp[cur]++;
+        long long Hash = get_Hash(i);
+        ans += (1LL) * mp[Hash]++;
     }
-    outpos(res);
+    outpos(ans);
 
     return 0;
 }

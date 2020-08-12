@@ -3,8 +3,8 @@ const int N = 2e5 + 5;
 struct SegtreeLazy {
     vector<int> t, lazy;
     SegtreeLazy() {
-        t.assign(4 * N);
-        lazy.assign(4 * N);
+        t.assign(4 * N, 0);
+        lazy.assign(4 * N, 0);
     }
 
     int combine(int x, int y) {

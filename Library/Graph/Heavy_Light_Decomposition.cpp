@@ -1,7 +1,8 @@
 const int N = 1e5 + 10;
 
 vector<int> adj[N];
-int depth[N], head[N], heavy[N], par[N], id[N], pos[N];
+int depth[N], head[N], heavy[N];
+int par[N], id[N], pos[N];
 int curPos;
 int t[4 * N];
 
@@ -43,7 +44,7 @@ int get(int v, int s, int e, int l, int r) {
 }
 
 int dfs(int u, int p) {
-    depth[u] = 1 + (u == p ? 0 : depth[p]);
+    depth[u] = (u == p ? 0 : 1 + depth[p]);
     par[u] = p;
     int sz = 1, max_sz = 0;
     for (auto v : adj[u]) {
@@ -79,6 +80,26 @@ int queryPath(int u, int v) {
     return res;
 }
 
+void init() {
+    dfs(1, 1);
+    decompose(1, 1);
+}
+
+void reset() {
+    curPos = 0;
+    for (int i = 1; i <= n; i++) {
+        adj[i].clear();
+        heavy[i] = 0;
+    }
+}
+
+void output() {
+    for (int i = 1; i <= n; i++) {
+        cerr << i << ": ";
+        cerr << pos[i] << " - " << head[i] << " - " << heavy[i] << "\n";
+    }
+}
+
 int kthNode(int u, int v, int k) {
     int tu = u, tv = v;
     for (; head[u] != head[v]; u = par[head[u]]) {
@@ -106,24 +127,4 @@ int kthNode(int u, int v, int k) {
         swap(u, v);
     }
     assert(false);
-}
-
-void init() {
-    dfs(1, 1);
-    decompose(1, 1);
-}
-
-void reset() {
-    curPos = 0;
-    for (int i = 1; i <= n; i++) {
-        adj[i].clear();
-        heavy[i] = 0;
-    }
-}
-
-void output() {
-    for (int i = 1; i <= n; i++) {
-        cerr << i << ": ";
-        cerr << pos[i] << " - " << head[i] << " - " << heavy[i] << "\n";
-    }
 }

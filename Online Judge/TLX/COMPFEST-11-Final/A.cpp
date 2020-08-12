@@ -11,11 +11,6 @@ vector<int> v[N];
 vector<pair<int, int>> w[N];
 int res[N][N];
 
-void dismiss() {
-    puts("Aku sudah menyangka tidak akan semudah ini Ferguso");
-    exit(0);
-}
-
 bool check() {
     for (int i = 0; i < n - 1; i++) {
         int len_1 = s[id[i]].size();
@@ -41,11 +36,7 @@ bool check() {
     return true;
 }
 
-int main() { 
-    ios_base::sync_with_stdio(0);
-    cin.tie(0);
-    cout.tie(0);
-
+void solve() {
     cin >> n;
     for (int i = 0; i < n; i++) {
         cin >> s[i];
@@ -60,14 +51,19 @@ int main() {
     for (int i = 0; i < n; i++) {
         for (int j = i; j < n; j++) {
             if (i == j) {
-                if (v[i][j]) dismiss();
-            } else if (v[i][j] != v[j][i])
-                dismiss();
+                if (v[i][j]) {
+                    cout << "Aku sudah menyangka tidak akan semudah ini Ferguso" << '\n';
+                    return;
+                }
+            } else if (v[i][j] != v[j][i]) {
+                cout << "Aku sudah menyangka tidak akan semudah ini Ferguso" << '\n';
+                return;
+            }
         }
     }
     if (n == 1) {
         cout << s[0] << '\n';
-        return 0;
+        return;
     }
     int maks = 0, row = -1;
     for (int i = 0; i < n - 1; i++) {
@@ -91,10 +87,25 @@ int main() {
             p[w[row][i].second] = n - i - 1;
             id[n - i - 1] = w[row][i].second;
         }
-        if (!check()) dismiss();
+        if (!check()) {
+            cout << "Aku sudah menyangka tidak akan semudah ini Ferguso" << '\n';
+            return;
+        }
     }
     for (int i = 0; i < n; i++) {
         cout << s[id[i]] << (i == n - 1 ? '\n' : ' ');
+    }
+}
+
+int main() { 
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+
+    int tc;
+    cin >> tc;
+    for (int T = 1; T <= tc; T++) {
+        solve();
     }
 
     return 0;

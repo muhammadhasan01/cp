@@ -1,17 +1,22 @@
 const int N = 2e5 + 5;
 
+typedef data int;
+
+const data TERM = 0;
+
 struct SegtreeLazy {
-    vector<int> t, lazy;
+    vector<data> t;
+    vector<int> lazy;
     SegtreeLazy() {
         t.assign(4 * N, 0);
         lazy.assign(4 * N, 0);
     }
 
-    int combine(int x, int y) {
+    data combine(const data& x, const data& y) {
         return (x > y ? x : y);
     }
 
-    void build(int v, int s, int e, int * a) {
+    void build(int v, int s, int e, data * a) {
         if (s == e) {
             t[v] = a[s];
         } else {
@@ -31,7 +36,7 @@ struct SegtreeLazy {
         lazy[v] = 0;
     }
 
-    void update(int v, int s, int e, int l, int r, int val) {
+    void update(int v, int s, int e, int l, int r, data val) {
         if (l > r) return;
         if (l == s && e == r) {
             t[v] += val;
@@ -45,14 +50,15 @@ struct SegtreeLazy {
         t[v] = combine(t[v << 1], t[v << 1 | 1]);
     }
 
-    int get(int v, int s, int e, int l, int r) {
+    data get(int v, int s, int e, int l, int r) {
         if (l > r)
-            return 0;
+            return TERM;
         if (l <= s && e <= r)
             return t[v];
         push(v, s, e);
         int mid = (s + e) >> 1;
-        return combine(get(v << 1, s, mid, l, min(r, mid)), 
-                get(v << 1 | 1, mid + 1, e, max(l, mid + 1), r));
+        data p1 = get(v << 1, s, mid, l, min(r, mid));
+        data p2 = get(v << 1 | 1, mid + 1, e, max(l, mid + 1), r);
+        return combine(p1, p2);
     }
 };

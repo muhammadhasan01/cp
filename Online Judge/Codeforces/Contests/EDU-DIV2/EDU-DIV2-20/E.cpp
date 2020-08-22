@@ -2,12 +2,13 @@
 
 using namespace std;
 
-const int N = 1e3 + 5;
-const char CC[2] = {'W', 'L'};
+const int N = 2e3 + 5;
+const int K = 1e3 + 2;
 
 int n, k;
 char a[N];
-bool dp[N][N][2];
+int dp[K][N];
+int par[K][N];
 
 int main() { 
     ios_base::sync_with_stdio(0);
@@ -18,80 +19,40 @@ int main() {
     for (int i = 1; i <= n; i++) {
         cin >> a[i];
     }
-    dp[0][0][0] = dp[0][0][1] = 1;
-    for (int i = 1; i <= n; i++) {
-        for (int j = 0; j <= (i == n ? k : k - 1); j++) {
-            for (int x = 0; x < 2; x++) {
-                if (a[i] == '?' || a[i] == 'D') {
-                    if (dp[i - 1][j][x]) {
-                        dp[i][j][x] = 1;
-                    }
-                }
-                if (j > 0 && dp[i - 1][j - 1][x]) {
-                    if (a[i] == '?' || a[i] == CC[x]) {
-                        dp[i][j][x] = 1;
-                    }
-                }
-                int y = 1 - x;
-                if (dp[i - 1][j + 1][y]) {
-                    if (a[i] == '?' || a[i] == CC[x]) {
-                        dp[i][j][y] = 1;
-                        if (j == 0)
-                            dp[i][j][x] = 1;
-                    }
-                }
+    dp[0][K] = 1;
+    for (int i = 0; i < n; i++) {
+        for (int x = -k + 1; x < k; x++) {
+            int j = K + x;
+            if (!dp[i][j]) continue;
+            if (a[i + 1] == '?' || a[i + 1] == 'D') {
+                dp[i + 1][j] = 1;
+                par[i + 1][j] = 0;
+            }
+            if (a[i + 1] == '?' || a[i + 1] == 'W') {
+                dp[i + 1][j + 1] = 1;
+                par[i + 1][j + 1] = -1;
+            }
+            if (a[i + 1] == '?' || a[i + 1] == 'L') {
+                dp[i + 1][j - 1] = 1;
+                par[i + 1][j - 1] = 1;
             }
         }
     }
-    int x = 0;
-    bool ok = false;
-    if (dp[n][k][x]) {
-        ok = true;
-    } else if (dp[n][k][1 - x]) {
-        ok = true;
-        x = 1 - x;
-    }
-    if (!ok) {
+    if (!dp[n][K + k] && !dp[n][K - k]) {
         cout << "NO" << '\n';
         return 0;
     }
-    int i = n, j = k, it = x;
+    int i = n, j = K + k;
+    if (dp[n][K - k]) j = K - k;
     while (i >= 1) {
-        if (dp[i - 1][j][it]) {
-            if (a[i] == '?' || a[i] == 'D') {
-                a[i] = 'D'; i--;
-                continue;
-            }
-        }
-        if (dp[i - 1][j][1 - it]) {
-            if (a[i] == '?' || a[i] == 'D') {
-                a[i] = 'D', i--, it ^= 1;
-                continue;
-            }
-        }
-        if (j > 0 && dp[i - 1][j - 1][it]) {
-            if (a[i] == '?' || a[i] == CC[it]) {
-                a[i] = CC[it];
-                i--, j--;
-                continue;
-         
-            }
-        }
-        if (dp[i - 1][j + 1][1 - it]) {
-            if (a[i] == '?' || a[i] == CC[it]) {
-                a[i] = CC[it];
-                if (j == 0) it ^= 1;
-                i--, j++;
-                continue;
-            }
-        }
-        if (dp[i - 1][j + 1][it]) {
-            if (a[i] == '?' || a[i] == CC[1 - it]) {
-                a[i] = CC[1 - it];
-                i--, j++;
-                continue;
-            }
-        }
+        int p = par[i][j];
+        if (p == 0)
+            a[i] = 'D';
+        else if (p == -1)
+            a[i] = 'W';
+        else if (p == 1)
+            a[i] = 'L';
+        i--, j += p;
     }
     for (int i = 1; i <= n; i++) {
         cout << a[i];

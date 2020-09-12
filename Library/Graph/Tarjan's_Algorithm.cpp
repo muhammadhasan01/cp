@@ -1,42 +1,104 @@
-const int N = 2e5 + 10;
+// from : https://github.com/PetarV-/Algorithms/blob/master/Graph%20Algorithms/Tarjan's%20SCC%20Algorithm.cpp
+/*
+ Petar 'PetarV' Velickovic
+ Algorithm: Tarjan's SCC Algorithm
+*/
 
-int n;
-vector<int> adj[N];
-int tin[N], low[N], comp[N];
-int timer, compNum;
-vector<int> st;
+#include <stdio.h>
+#include <math.h>
+#include <string.h>
+#include <iostream>
+#include <vector>
+#include <list>
+#include <string>
+#include <algorithm>
+#include <queue>
+#include <stack>
+#include <set>
+#include <map>
+#include <complex>
+#define MAX_N 20001
+#define INF 987654321
+using namespace std;
+typedef long long lld;
 
-void dfs_scc(int node, int p) {
-    st.pb(node);
-    tin[node] = low[node] = ++timer;
-    for (auto x : adj[node]) {
-        if (x == p) continue; // comment this line for directed graph
-        if (tin[x]) {
-            low[node] = min(low[node], tin[x]); 
-        } else {
-            dfs_scc(x, node);
-            low[node] = min(low[node], low[x]);
+int n, m;
+struct Node
+{
+    vector<int> adj;
+};
+Node graf[MAX_N];
+stack<int> Stack;
+bool onStack[MAX_N];
+int Indices;
+int Index[MAX_N];
+int LowLink[MAX_N];
+int component[MAX_N];
+int numComponents;
+
+//Tarjanov algoritam za racunanje jako povezanih komponenti datog usmerenog grafa
+//Slozenost: O(V + E)
+
+void tarjanDFS(int i)
+{
+    Index[i] = ++Indices;
+    LowLink[i] = Indices;
+    Stack.push(i); onStack[i] = true;
+    for (int j=0;j<graf[i].adj.size();j++)
+    {
+        int w = graf[i].adj[j];
+        if (Index[w] == 0)
+        {
+            tarjanDFS(w);
+            LowLink[i] = min(LowLink[i], LowLink[w]);
+        }
+        else if (onStack[w])
+        {
+            LowLink[i] = min(LowLink[i], Index[w]);
         }
     }
-    if (low[node] == tin[node]) {
-        compNum++;
-        while (st.back() != node) {
-            comp[st.back()] = compNum;
-            st.pop_back();
-        }
-        comp[st.back()] = compNum;
-        st.pop_back();
+    if (LowLink[i] == Index[i])
+    {
+        int w = 0;
+        do
+        {
+            w = Stack.top(); Stack.pop();
+            component[w] = numComponents;
+            onStack[w] = false;
+        } while (i != w && !Stack.empty());
+        numComponents++;
     }
 }
-void tarjan(){
-    for (int i = 1; i <= n; i++) {
-        tin[i] = low[i] = comp[i] = 0;
-    }
-    timer = compNum = 0;
-    st.clear();
-    for (int i = 1; i <= n; i++) {
-        if (tin[i] == 0) {
-            dfs_scc(i, i);
-        }
-    }
+
+void Tarjan()
+{
+    Indices = 0;
+    while (!Stack.empty()) Stack.pop();
+    for (int i=n;i>0;i--) onStack[i] = LowLink[i] = Index[i] = 0;
+    numComponents = 0;
+    for (int i=n;i>0;i--) if (Index[i] == 0) tarjanDFS(i);
+}
+
+int main()
+{
+    n = 8, m = 14;
+    graf[0].adj.push_back(1);
+    graf[1].adj.push_back(2);
+    graf[1].adj.push_back(4);
+    graf[1].adj.push_back(5);
+    graf[2].adj.push_back(3);
+    graf[2].adj.push_back(6);
+    graf[3].adj.push_back(2);
+    graf[3].adj.push_back(7);
+    graf[4].adj.push_back(5);
+    graf[5].adj.push_back(6);
+    graf[6].adj.push_back(5);
+    graf[7].adj.push_back(3);
+    graf[7].adj.push_back(6);
+
+    Tarjan();
+
+    printf("%d\n",numComponents);
+
+    return 0;
 }

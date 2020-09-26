@@ -1,8 +1,9 @@
+/** START OF DESPERATE OPTIMIZATION **/
 #pragma GCC target ("avx2")
 #pragma GCC optimization ("O3")
 #pragma GCC optimization ("unroll-loops")
 
-template<typename T> void inpos(T & x) {
+template<typename T> void in(T & x) {
     x = 0;
     register T c = getchar();
     while (((c < 48) || (c > 57)) && (c != '-')) c = getchar();
@@ -13,7 +14,7 @@ template<typename T> void inpos(T & x) {
     if (neg) x = -x;
 }
 
-template<typename T> void outpos(T n) {
+template<typename T> void out(T n, char CC) {
     if (n < 0) {
         putchar('-');
         n *= -1;
@@ -26,5 +27,6 @@ template<typename T> void outpos(T n) {
     } while (n);
     i = i - 1;
     while (i >= 0) putchar(snum[i--]);
-    putchar('\n');
+    putchar(CC);
 }
+/** END OF DESPERATE OPTIMIZATION **/

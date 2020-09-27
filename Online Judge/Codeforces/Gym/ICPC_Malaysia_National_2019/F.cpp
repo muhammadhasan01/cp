@@ -1,22 +1,49 @@
-// author : m.hasan01
-// inspired from : https://github.com/Sohieeb/2019-icpc-malaysia-national-contest
 #include <bits/stdc++.h>
 
 using namespace std;
 
-const int N = 2e3 + 5;
-const int M = 1e9 + 7;
-int n, e, k;
-bool inv[N][N];
-int dp[N][(1<<9)];
-
-int mmod(int a, int b) {
-    return ((a % M + b % M) % M + M) % M;
+/** START OF TEMPLATE DEBUGGER **/
+#define sim template < class c
+#define ris return * this
+#define dor > debug & operator <<
+#define eni(x) sim > typename \
+  enable_if<sizeof dud<c>(0) x 1, debug&>::type operator<<(c i) {
+sim > struct rge { c b, e; };
+sim > rge<c> range(c i, c j) { return rge<c>{i, j}; }
+sim > auto dud(c* x) -> decltype(cerr << *x, 0);
+sim > char dud(...);
+struct debug {
+#ifdef LOCAL
+~debug() { cerr << endl; }
+eni(!=) cerr << boolalpha << i; ris; }
+eni(==) ris << range(begin(i), end(i)); }
+sim, class b dor(pair < b, c > d) {
+  ris << "(" << d.first << ", " << d.second << ")";
 }
+sim dor(rge<c> d) {
+  *this << "[";
+  for (auto it = d.b; it != d.e; ++it)
+    *this << ", " + 2 * (it == d.b) << *it;
+  ris << "]";
+}
+#else
+sim dor(const c&) { ris; }
+#endif
+};
+#define imie(...) "[" << #__VA_ARGS__ ": " << (__VA_ARGS__) << "] "
+/** END OF TEMPLATE DEBUGGER **/
 
-int get(int a, int b) {
-    a ^= (1 << b);
-    return (a << 1 | 1);
+const int N = 2e3 + 5;
+const int K = 9;
+const int M = 1e9 + 7;
+
+int n, e, k;
+int dp[N][(1 << K)];
+bool bad[N][N];
+
+int get(int mask, int k) {
+    mask ^= (1 << k);
+    return (mask << 1 | 1);
 }
 
 int main() {
@@ -25,36 +52,27 @@ int main() {
     cout.tie(0);
 
     cin >> n >> e >> k;
-    for (int i = 1; i <= k; i++) {
+    for (int i = 0; i < k; i++) {
         int u, v;
         cin >> u >> v;
-        inv[u][v] = 1;
+        --u, --v;
+        bad[u][v] = 1;
     }
-
-    dp[1][(1<<(e + 1)) - 1] = 1;
-    for (int i = 1; i <= n; i++) {
-        for (int j = 0; j < (1 << (2 * e + 1)); j++) {
-            if (dp[i][j]) {
-                if (j & (1 << (2 * e))) {
-                    if (i - e >= 1 && !inv[i][i - e]) {
-                        int ps = get(j, 2 * e);
-                        dp[i + 1][ps] = mmod(dp[i + 1][ps], dp[i][j]);
-                        continue;
-                    }
-                }
-                for (int k = 0; k < 2 * e; k++) {
-                    int pos = i - k + e;
-                    if (pos > n || pos < 1) continue;
-                    if (inv[i][pos]) continue;
-                    if (j & (1 << k)) {
-                        int ps = get(j, k);
-                        dp[i + 1][ps] = mmod(dp[i + 1][ps], dp[i][j]);
-                    }
-                }
+    dp[0][(1 << (e + 1)) - 1] = 1;
+    for (int i = 0; i < n; i++) {
+        for (int mask = 0; mask < (1 << (2 * e + 1)); mask++) {
+            if (dp[i][mask] == 0) continue;
+            for (int k = 0; k <= 2 * e; k++) {
+                int pos = i + e - k;
+                if (pos >= n && pos < 0) continue;
+                if (bad[i][pos]) continue;
+                if (!(mask & (1 << k))) continue;
+                int nmask = get(mask, k);
+                dp[i + 1][nmask] = (dp[i + 1][nmask] + dp[i][mask]) % M;
             }
         }
     }
-    cout << dp[n + 1][(1 << (e + 1)) - 1] << '\n';
+    cout << dp[n][(1 << (e + 1)) - 1] << '\n';
 
     return 0;
 }

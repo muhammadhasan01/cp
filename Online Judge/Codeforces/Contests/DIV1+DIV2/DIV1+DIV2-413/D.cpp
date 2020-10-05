@@ -33,55 +33,46 @@ sim dor(const c&) { ris; }
 #define imie(...) "[" << #__VA_ARGS__ ": " << (__VA_ARGS__) << "] "
 /** END OF TEMPLATE DEBUGGER **/
 
-const long long INF = 1e12;
-const long long N = 1e5 + 5;
-
 int main() {
     ios_base::sync_with_stdio(0);
     cin.tie(0);
     cout.tie(0);
 
-    long long a, b, h, w;
+    const int INF = 1e5;
+
+    int A, B, H, W;
+    cin >> A >> B >> H >> W;
     int n;
-    cin >> a >> b >> h >> w >> n;
-    vector<long long> p(n);
+    cin >> n;
+    vector<int> p(n);
     for (int i = 0; i < n; i++) {
         cin >> p[i];
     }
     sort(p.rbegin(), p.rend());
+    n = min(n, 40);
 
-    auto can = [&](int len) -> bool {
-        vector<bool> dp(N + 5);
+    auto solve = [&](int a, int b, int h, int w) -> int {
+        a = (a + h - 1) / h;
+        b = (b + w - 1) / w;
+        if (a == 1 && b == 1) return 0;
+        vector<int> dp(a + 1);
         dp[1] = 1;
-        long long res = 1;
-        for (int i = 0; i < len; i++) {
-            res = min(INF, res * p[i]);
-            for (int val = N; val > 0; val--) {
-                if (dp[val]) {
-                    dp[min(N, (1LL) * val * p[i])] = 1;
-                }
+        for (int i = 0; i < n; i++) {
+            for (int j = a; j > 0; j--) {
+                int res = min((1LL) * j * p[i], (1LL) * a);
+                dp[res] = min(b, max(dp[res], dp[j]));
+                dp[j] = min((1LL) * b, (1LL) * dp[j] * p[i]);
             }
+            if (dp[a] >= b)
+                return i + 1;
         }
-        for (int val = 1; val <= N; val++) {
-            if (!dp[val]) continue;
-            long long oval = res / val;
-            if (h * val >= a && w * oval >= b) return true;
-            if (h * oval >= a && w * val >= b) return true;
-        }
-        return (h >= a && w >= b);
+        return INF;
     };
 
-    int l = 0, r = min(40, n), ans = -1;
-    while (l <= r) {
-        int mid = (l + r) >> 1;
-        if (can(mid)) {
-            r = mid - 1;
-            ans = mid;
-        } else {
-            l = mid + 1;
-        }
-    }
-    cout << ans << '\n';
+    int res = min(solve(A, B, H, W), solve(A, B, W, H));
+    if (res == INF)
+        res = -1;
+    cout << res << '\n';
 
     return 0;
 }

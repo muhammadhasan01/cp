@@ -14,7 +14,7 @@ void tarjan(int u) {
     st.emplace(u); onStack[u] = true;
     for (auto v : adj[u]) {
         if (tin[v] == 0) {
-            dfs(v);
+            tarjan(v);
             low[u] = min(low[u], low[v]);
         } else if (onStack[v]) {
             low[u] = min(low[u], tin[v]);

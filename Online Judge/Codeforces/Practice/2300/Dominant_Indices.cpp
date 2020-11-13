@@ -34,31 +34,24 @@ sim dor(const c&) { ris; }
 /** END OF TEMPLATE DEBUGGER **/
 
 const int N = 1e6 + 5;
-const int M = 2 * N;
 
 int n;
 vector<int> adj[N];
-int depth[N];
-int eul[M], tin[M], tout[M], tim;
-int block;
+int depth[N], sz[N];
+int eul[N], tin[N], tout[N], tim;
 int cnt[N], ans[N];
 set<pair<int, int>> st_cnt;
 
-struct st {
-    int l, r, idx;
-    bool operator<(const st& o) {
-        return make_pair(l / block, r) < make_pair(o.l / block, o.r);
-    };
-} query[N];
-
 void dfs(int u, int p) {
     depth[u] = 1 + depth[p];
+    sz[u] = 1;
     eul[++tim] = depth[u]; tin[u] = tim;
     for (int v : adj[u]) {
         if (v == p) continue;
         dfs(v, u);
+        sz[u] += sz[v];
     }
-    eul[++tim] = depth[u]; tout[u] = tim;
+    tout[u] = tim;
 }
 
 void del(int x) {
@@ -66,11 +59,40 @@ void del(int x) {
     --cnt[x];
     st_cnt.insert(make_pair(-cnt[x], x));
 }
-
+ 
 void add(int x) {
     st_cnt.erase(make_pair(-cnt[x], x));
     ++cnt[x];
     st_cnt.insert(make_pair(-cnt[x], x));
+}
+
+void dp(int u, int p, bool keep) {
+    int mx = -1, bigChild = -1;
+    for (int v : adj[u]) {
+        if (v == p) continue;
+        if (sz[v] > mx) {
+            mx = sz[v], bigChild = v;
+        }
+    }
+    for (int v : adj[u]) {
+        if (v == p || v == bigChild) continue;
+        dp(v, u, 0);
+    }
+    if (bigChild != -1)
+        dp(bigChild, u, 1);
+    for (int v : adj[u]) {
+        if (v == p || v == bigChild) continue;
+        for (int x = tin[v]; x <= tout[v]; x++) {
+            add(eul[x]);
+        }
+    }
+    add(depth[u]);
+    ans[u] = (st_cnt.begin()->second - depth[u]);
+    if (keep == 0) {
+        for (int x = tin[u]; x <= tout[u]; x++) {
+            del(eul[x]);
+        }
+    }
 }
 
 int main() {
@@ -86,22 +108,7 @@ int main() {
         adj[v].emplace_back(u);
     }
     dfs(1, 1);
-    for (int i = 1; i <= n; i++) {
-        query[i] = {tin[i], tout[i], i};
-    }
-    block = sqrt(n) + 1;
-    sort(query + 1, query + 1 + n);
-    int cur_l = 1, cur_r = 0;
-    for (int i = 1; i <= n; i++) {
-        int L = query[i].l, R = query[i].r;
-        while (cur_l < L) del(eul[cur_l++]);
-        while (cur_l > L) add(eul[--cur_l]);
-        while (cur_r < R) add(eul[++cur_r]);
-        while (cur_r > R) del(eul[cur_r--]);
-        int cur_depth = (st_cnt.begin()->second);
-        int id = query[i].idx;
-        ans[id] = cur_depth - depth[id]; 
-    }
+    dp(1, 1, 1);
     for (int i = 1; i <= n; i++) {
         cout << ans[i] << '\n';
     }

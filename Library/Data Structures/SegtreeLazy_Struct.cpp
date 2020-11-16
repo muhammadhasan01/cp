@@ -17,14 +17,15 @@ struct SegtreeLazy {
     }
 
     void build(int v, int s, int e, t_data * a) {
+        lazy[v] = 0;
         if (s == e) {
             t[v] = a[s];
-        } else {
-            int mid = (s + e) >> 1;
-            build(v << 1, s, mid);
-            build(v << 1 | 1, mid + 1, e);
-            t[v] = combine(t[v << 1], t[v << 1 | 1]);
+            return;
         }
+        int mid = (s + e) >> 1;
+        build(v << 1, s, mid);
+        build(v << 1 | 1, mid + 1, e);
+        t[v] = combine(t[v << 1], t[v << 1 | 1]);
     }
 
     void push(int v, int s, int e) {

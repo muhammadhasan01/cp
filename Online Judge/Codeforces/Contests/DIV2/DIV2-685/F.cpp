@@ -29,48 +29,29 @@ sim dor(const c&) { ris; }
 };
 #define imie(...) "[" << #__VA_ARGS__ ": " << (__VA_ARGS__) << "] "
 
-const int N = (1 << 16) + 5;
+int n, m;
 
-int n;
-int a[N];
+void solve() {
+    cin >> n >> m;
+    vector<int> v(n + m - 1);
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            int x; cin >> x;
+            v[i + j] ^= x;
+        }
+    }
+    cout << (*max_element(v.begin(), v.end()) > 0 ? "Ashish" : "Jeel") << '\n';
+}
 
-int main() {
+int main() { 
     ios_base::sync_with_stdio(0);
     cin.tie(0);
     cout.tie(0);
 
-    cin >> n;
-    int special = -1;
-    map<int, int> mp;
-    mp[0] = 1;
-    for (int i = 2; i <= n; i++) {
-        cout << "XOR " << 1 << ' ' << i << endl;
-        cin >> a[i];
-        if (special == -1 && mp.count(a[i])) {
-            cout << "AND " << mp[a[i]] << ' ' << i << endl;
-            cin >> special;
-            special = (special ^ a[i]);
-        } else {
-            mp[a[i]] = i;
-        }
-    }
-    if (special == -1) {
-        special = 0;
-        for (int i = 2; i <= n; i++) {
-            if (a[i] == 1 || a[i] == n - 2) {
-                cout << "AND 1 " << i << endl;
-                int res; cin >> res;
-                special = (special ^ res); 
-            }
-        }
-    }
-    cout << "! ";
-    for (int i = 1; i <= n; i++) {
-        cout << (special ^ a[i]);
-        if (i < n)
-            cout << ' ';
-        else
-            cout << endl;
+    int tc;
+    cin >> tc;
+    for (int T = 1; T <= tc; T++) {
+        solve();
     }
 
     return 0;

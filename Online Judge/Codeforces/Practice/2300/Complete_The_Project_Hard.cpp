@@ -57,7 +57,7 @@ int main() {
         }
     }
     {
-        sort(v[1].begin(), v[1].end(), [&](auto x, auto y) {
+        sort(v[1].begin(), v[1].end(), [&](auto& x, auto& y) {
             return x.first + x.second > y.first + y.second;
         });
         int len = v[1].size();
@@ -68,15 +68,13 @@ int main() {
         }
         dp[0][r] = 0;
         for (int i = 1; i <= len; i++) {
-            for (int j = v[1][i - 1].first; j < R; j++) {
-                for (int it = i - 1; it >= 0; it--) {
-                    int before = dp[it][j];
-                    if (before == -1) continue;
-                    dp[i][j] = max(dp[i][j], before);
-                    int new_j = j + v[1][i - 1].second;
-                    if (new_j < 0) continue;
-                    dp[i][new_j] = max(dp[i][new_j], 1 + before);
+            int a = v[1][i - 1].first, b = v[1][i - 1].second;
+            for (int j = 0; j < R; j++) {
+                if (dp[i - 1][j] == -1) continue;
+                if (j >= a && j + b >= 0) {
+                    dp[i][j + b] = max(dp[i][j + b], 1 + dp[i - 1][j]);
                 }
+                dp[i][j] = max(dp[i][j], dp[i - 1][j]);
             }
         }
         int cur_answer = 0;

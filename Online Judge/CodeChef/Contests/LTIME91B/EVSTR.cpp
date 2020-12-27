@@ -30,40 +30,17 @@ sim dor(const c&) { ris; }
 #define imie(...) "[" << #__VA_ARGS__ ": " << (__VA_ARGS__) << "] "
 
 void solve() {
-    int n;
-    cin >> n;
-    vector<int> v(n);
-    for (int i = 0; i < n; i++) {
-        cin >> v[i];
-    }
-    vector<pair<int, int>> w;
-    int cur = v[0], cnt = 0;    
-    for (int i = 0; i < n; i++) {
-        if (cur == v[i]) {
-            ++cnt;
-        } else {
-            w.emplace_back(cur, cnt);
-            cur = v[i];
-            cnt = 1;
+    int n; cin >> n;
+    vector<int> dp(n + 1), prev(n + 1, -1);
+    for (int i = 1; i <= n; i++) {
+        int x; cin >> x;
+        dp[i] = dp[i - 1] + 1;
+        if (prev[x] != -1) {
+            dp[i] = min(dp[i], dp[prev[x] - 1] + i - 1 - prev[x]);
         }
+        prev[x] = i;
     }
-    w.emplace_back(cur, cnt);
-    int len = w.size();
-    vector<bool> ok(len);
-    int answer = 0;
-    for (int i = 1; i < len - 1; i++) {
-        if (w[i].second > 1) continue;
-        if (ok[i - 1] || ok[i + 1]) continue;
-        if (w[i - 1].first != w[i + 1].first) continue;
-        if (w[i - 1].second % 2 == 0 || w[i + 1].second % 2 == 0) continue;
-        if ((w[i - 1].second + w[i + 1].second) & 1) continue;
-        ok[i - 1] = ok[i + 1] = ok[i] = 1;
-        ++answer;
-    }
-    for (int i = 0; i < len; i++) {
-        if (w[i].second % 2 == 1 && !ok[i]) ++answer;
-    }
-    cout << answer << '\n';
+    cout << dp[n] << '\n';
 }
 
 int main() { 

@@ -29,26 +29,12 @@ sim dor(const c&) { ris; }
 };
 #define imie(...) "[" << #__VA_ARGS__ ": " << (__VA_ARGS__) << "] "
 
-using pil = pair<int, long long>;
-
 const long long INF = 1e18;
 const int N = 2e5 + 5;
 
 int n, m;
 vector<pair<int, int>> adj[N];
-long long ans[N];
-
-struct T {
-    int u;
-    long long res;
-    long long sum;
-    long long maxi, mini;
-    T(long long val, long long s, long long x, long long y, int u) :
-        res(val), sum(s), maxi(x), mini(y), u(u) {}
-    bool operator<(const T& o) const {
-        return res > o.res;
-    }
-};
+long long ans[N][2][2];
 
 int main() {
     ios_base::sync_with_stdio(0);
@@ -62,27 +48,38 @@ int main() {
         adj[u].emplace_back(v, w);
         adj[v].emplace_back(u, w);
     }
-    for (int i = 2; i <= n; i++) {
-        ans[i] = INF;
-    }
-    priority_queue<T> pq;
-    pq.emplace(0, 0, -INF, INF, 1);
-    while (!pq.empty()) {
-        auto cc = pq.top();
-        pq.pop();
-        for (auto& e : adj[cc.u]) {
-            int v = e.first;
-            long long w = e.second;
-            long long val = w + cc.sum - max(w, cc.maxi) + min(w, cc.mini);
-            if (val < ans[v]) {
-                ans[v] = val;
-                T newCur = T(val, cc.sum + w, max(w, cc.maxi), min(w, cc.mini), v);
-                pq.emplace(newCur);
+    for (int i = 1; i <= n; i++) {
+        for (int j = 0; j < 2; j++) {
+            for (int k = 0; k < 2; k++) {
+                ans[i][j][k] = INF;
             }
-        } 
+        }
+    }
+    ans[1][0][0] = 0LL;
+    set<pair<long long, tuple<int, int, int>>> st;
+    st.insert({0, {1, 0, 0}});
+    while (!st.empty()) {
+        int u, mx, mn;
+        tie(u, mx, mn) = st.begin()->second;
+        st.erase(st.begin());
+        for (auto& e : adj[u]) {
+            int v, w;
+            tie(v, w) = e;
+            for (int i = 0; i <= 1 - mx; i++) {
+                for (int j = 0; j <= 1 - mn; j++) {
+                    if (ans[v][mx | i][mn | j] > ans[u][mx][mn] + (1LL) * (1 - i + j) * w) {
+                        auto it = st.find({ans[v][mx | i][mn | j], {v, mx | i, mn | j}});
+                        if (it != st.end())
+                            st.erase(it);
+                        ans[v][mx | i][mn | j] = ans[u][mx][mn] + (1LL) * (1 - i + j) * w;
+                        st.insert({ans[v][mx | i][mn | j], {v, mx | i, mn | j}});
+                    }
+                }
+            }
+        }
     }
     for (int i = 2; i <= n; i++) {
-        cout << ans[i] << (i == n ? '\n' : ' ');
+        cout << ans[i][1][1] << (i == n ? '\n' : ' ');
     }
 
     return 0;

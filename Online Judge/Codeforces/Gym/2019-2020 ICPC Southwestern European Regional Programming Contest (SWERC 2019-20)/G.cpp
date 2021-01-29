@@ -1,118 +1,84 @@
-#pragma gcc optimize ("O2")
-#pragma gcc optimize ("unroll-loops")
-
 #include <bits/stdc++.h>
-
-
-#define fi first
-#define se second
-#define pb(a) push_back(a)
-#define mp(a, b) make_pair(a, b)
-#define el '\n'
-
 using namespace std;
-using ll = long long;
-using pii = pair<int, int>;
-
-const int N = 1e5 + 10;
-
-int S, L, n;
-map<string, int> getid;
-string getname[N];
-bool isadj[201][201];
-
-vector<int> vec;
-void pushtoback(int id){
-    int len = vec.size();
-
-    vector<int> nvec;
-    vector<int> simp;
-    for (int i=len - 1;i>=0;i--){
-        if (vec[i] == id){
-            nvec.pb(vec[i]);
-        } else{
-            if ((simp.size() || vec[i] <= id) && isadj[id][vec[i]]){
-                simp.pb(vec[i]);
-            } else{
-                for (auto& x : simp){
-                    nvec.pb(x);
-                }
-                simp.clear();
-                nvec.pb(vec[i]);
-            }
-        }
-    }
-    for (auto& x : simp){
-        nvec.pb(x);
-    }
-    reverse(nvec.begin(), nvec.end());
-    vec.swap(nvec);
+#define sim template < class c
+#define ris return * this
+#define dor > debug & operator <<
+#define eni(x) sim > typename \
+  enable_if<sizeof dud<c>(0) x 1, debug&>::type operator<<(c i) {
+sim > struct rge { c b, e; };
+sim > rge<c> range(c i, c j) { return rge<c>{i, j}; }
+sim > auto dud(c* x) -> decltype(cerr << *x, 0);
+sim > char dud(...);
+struct debug {
+#ifdef LOCAL
+~debug() { cerr << endl; }
+eni(!=) cerr << boolalpha << i; ris; }
+eni(==) ris << range(begin(i), end(i)); }
+sim, class b dor(pair < b, c > d) {
+  ris << "(" << d.first << ", " << d.second << ")";
 }
-void solve(int id){
-    for (int i=id + 1;i<=S;i++) if (isadj[id][i]) pushtoback(i);
-    int len = vec.size();
-
-    vector<int> nvec;
-    vector<int> simp;
-    for (int i=0;i<len;i++){
-        if (vec[i] == id){
-            nvec.pb(vec[i]);
-        } else{
-            if ((simp.size() || vec[i] >= id) && isadj[id][vec[i]]){
-                simp.pb(vec[i]);
-            } else{
-                for (auto& x : simp){
-                    nvec.pb(x);
-                }
-                simp.clear();
-                nvec.pb(vec[i]);
-            }
-        }
-    }
-    for (auto& x : simp){
-        nvec.pb(x);
-    }
-    vec.swap(nvec);
+sim dor(rge<c> d) {
+  *this << "[";
+  for (auto it = d.b; it != d.e; ++it)
+    *this << ", " + 2 * (it == d.b) << *it;
+  ris << "]";
 }
+#else
+sim dor(const c&) { ris; }
+#endif
+};
+#define imie(...) "[" << #__VA_ARGS__ ": " << (__VA_ARGS__) << "] "
 
-int main () {
-    ios_base::sync_with_stdio(false);
+int main() {
+    ios_base::sync_with_stdio(0);
     cin.tie(0);
     cout.tie(0);
 
-    cin >> S >> L >> n;
-    for (int i=1;i<=S;i++){
-        string temp;
-        cin >> temp;
-        getid[temp] = 1;
-    }    
+    int S, L, N;
+    cin >> S >> L >> N;
+    vector<string> names(S);
+    for (int i = 0; i < S; i++) {
+        cin >> names[i];
+    }
+    sort(names.begin(), names.end());
+    map<string, int> mp;
+    vector<string> animals(S);
     {
-        int tempid = 0;
-        for (auto& x : getid){
-            x.se = ++tempid;
-            getname[tempid] = x.fi;
+        int id = 0;
+        for (string& str : names) {
+            animals[id] = str;
+            mp[str] = id++;
         }
     }
-    for (int i=1;i<=L;i++){
-        string temp1, temp2;
-        cin >> temp1 >> temp2;
-        int id1 = getid[temp1];
-        int id2 = getid[temp2];
-        isadj[id1][id2] = 1;
-        isadj[id2][id1] = 1;
+    vector<vector<bool>> swappable(S, vector<bool>(S));
+    for (int i = 0; i < L; i++) {
+        string A, B;
+        cin >> A >> B;
+        int u = mp[A], v = mp[B];
+        swappable[u][v] = swappable[v][u] = true;
     }
-    for (int i=1;i<=n;i++){
-        string temp;
-        cin >> temp;
-        vec.pb(getid[temp]);
+    vector<int> q(N);
+    for (int i = 0; i < N; i++) {
+        string str;
+        cin >> str;
+        q[i] = mp[str];
     }
-    for (int i=1;i<=S;i++){
-        solve(i);
+    vector<int> ans(N);
+    vector<int> cur_block(S);
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < S; j++) {
+            while (cur_block[j] < N && (q[cur_block[j]] == -1 || swappable[j][q[cur_block[j]]]))
+                cur_block[j]++;
+            if (cur_block[j] < N && q[cur_block[j]] == j) {
+                q[cur_block[j]] = -1;
+                ans[i] = j;
+                break;
+            }
+        }
     }
-    for (auto& x : vec){
-        cout << getname[x] << " ";
+    for (int i = 0; i < N; i++) {
+        cout << animals[ans[i]] << " \n"[i == N - 1];
     }
-    cout << el;
 
     return 0;
 }

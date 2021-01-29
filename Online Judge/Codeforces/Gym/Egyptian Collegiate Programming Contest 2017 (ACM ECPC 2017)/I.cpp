@@ -29,104 +29,112 @@ sim dor(const c&) { ris; }
 };
 #define imie(...) "[" << #__VA_ARGS__ ": " << (__VA_ARGS__) << "] "
 
-/** START OF DESPERATE OPTIMIZATION **/
-#pragma GCC target ("avx2")
-#pragma GCC optimization ("O3")
-#pragma GCC optimization ("unroll-loops")
+#define F first
+#define S second
+typedef pair<int, int> pii;
 
-template<typename T> void in(T & x) {
-    x = 0;
-    register T c = getchar();
-    while (((c < 48) || (c > 57)) && (c != '-')) c = getchar();
-    bool neg = false;
-    if (c == '-') neg = true;
-    for (; c < 48 || c > 57; c = getchar());
-    for (; c > 47 && c < 58; c = getchar()) x = (x << 3) + (x << 1) + (c & 15);
-    if (neg) x = -x;
-}
+const int NUM = 2003, N = 203, Q = 10003;
 
-template<typename T> void out(T n, char CC) {
-    if (n < 0) {
-        putchar('-');
-        n *= -1;
+int n, m, q;
+
+struct BIT {
+    vector<vector<int>> b;
+    BIT(int n, int m) : b(n, vector<int>(m)) {}
+    void add(int ii, int jj, int v) {
+        for (int i = ii + 1; i <= n; i += i & -i)
+            for (int j = jj + 1; j <= m; j += j & -j)
+                b[i - 1][j - 1] += v;
     }
-    char snum[65];
-    int i = 0;
-    do {
-        snum[i++] = n % 10 + '0';
-        n /= 10;
-    } while (n);
-    i = i - 1;
-    while (i >= 0) putchar(snum[i--]);
-    putchar(CC);
-}
-/** END OF DESPERATE OPTIMIZATION **/
+    int get(int ii, int jj) {
+        int v = 0;
+        for (int i = ii + 1; i; i -= i & -i)
+            for (int j = jj + 1; j; j -= j & -j)
+                v += b[i - 1][j - 1];
+        return v;
+    }
+    int query(int si, int sj, int ei, int ej) {
+        --si, --sj;
+        return get(ei, ej) - get(ei, sj) - get(si, ej) + get(si, sj);
 
-const int N = 201;
-const int M = 2001;
+    }
+} bit(0, 0);
 
-int a[N][N];
-int dp[N][N][M];
+int val[N][N];
+int si[Q], sj[Q], ei[Q], ej[Q], k[Q];
+int sortedQ[Q], answer[Q], curT = 0;
+vector<pii> pos[NUM];
 
-int get(int A, int B, int C, int D, int v) {
-    return dp[C][D][v] - dp[A - 1][D][v] - dp[C][B - 1][v] + dp[A - 1][B - 1][v]; 
-}
-
-void solve() {
-    int n, m, q;
-    in(n), in(m), in(q);
-    // cin >> n >> m >> q;
-    int mini = M, maxi = 0;
-    for (int i = 1; i <= n; i++) {
-        for (int j = 1; j <= m; j++) {
-            in(a[i][j]);
-            maxi = max(maxi, a[i][j]);
-            mini = min(mini, a[i][j]);
-            // cin >> a[i][j];
-            for (int v = 1; v < M; v++) {
-                dp[i][j][v] = 0;
-            }
+void PBS(int st, int en, int lf, int rt) {
+    if (rt < lf) return;
+    if (st == en) {
+        for (int i = lf; i <= rt; ++i) {
+            answer[sortedQ[i]] = st;
         }
+        return;
     }
-    for (int i = 1; i <= n; i++) {
-        vector<int> pre(M);
-        for (int j = 1; j <= m; j++) {
-            pre[a[i][j]]++;
-            for (int v = mini; v <= maxi; v++) {
-                dp[i][j][v] = dp[i - 1][j][v] + pre[v];
-            }
-        }
+
+    int md = (st + en) / 2;
+
+    while (curT > md) {
+        for (pii &c : pos[curT])
+            bit.add(c.F, c.S, -1);
+        --curT;
     }
-    while (q--) {
-        int A, B, C, D;
-        cin >> A >> B >> C >> D;
-        int cur = 0;
-        int sz = (C - A + 1) * (D - B + 1);
-        int bound = sz / 2 + 1;
-        for (int v = mini; v <= maxi; v++) {
-            int res = get(A, B, C, D, v);
-            cur += res;
-            if (cur >= bound) {
-                printf("%d\n", v);
-                break;
-            }
-        }
+    while (curT < md) {
+        ++curT;
+        for (pii &c : pos[curT])
+            bit.add(c.F, c.S, 1);
     }
+    int pivot = partition(sortedQ + lf, sortedQ + rt + 1, [](int qi) {
+        return bit.query(si[qi], sj[qi], ei[qi], ej[qi]) > k[qi];  // assume you've done your md loop
+    }) - sortedQ;
+
+    PBS(st, md, lf, pivot - 1);
+    PBS(md + 1, en, pivot, rt);
 }
 
-int main() { 
+
+int main() {
     ios_base::sync_with_stdio(0);
     cin.tie(0);
     cout.tie(0);
 
-    // freopen("important.in", "r", stdin); 
+    freopen("important.in", "rt", stdin);
 
-    int tc;
-    in(tc);
-    for (int T = 1; T <= tc; T++) {
-        printf("Case %d:\n", T);
-        solve();
+    int nTests;
+    scanf("%d", &nTests);
+    for (int tid = 1; tid <= nTests; ++tid) {
+        scanf("%d%d%d", &n, &m, &q);
+        bit = BIT(n, m);
+        int MAX = 0;
+        int MIN = 1e9;
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < m; ++j) {
+                scanf("%d", &val[i][j]);
+                MAX = max(MAX, val[i][j]);
+                MIN = min(MIN, val[i][j]);
+            }
+        }
+        for (int v = MIN; v <= MAX; ++v) {
+            pos[v].clear();
+        }
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < m; ++j) {
+                pos[val[i][j]].emplace_back(i, j);
+            }
+        }
+        for (int i = 0; i < q; ++i) {
+            scanf("%d%d%d%d", si + i, sj + i, ei + i, ej + i);
+            --si[i], --sj[i], --ei[i], --ej[i];
+            k[i] = (ei[i] - si[i] + 1) * (ej[i] - sj[i] + 1) / 2;
+            sortedQ[i] = i;
+        }
+        curT = MIN-1;
+        PBS(MIN, MAX, 0, q - 1);
+
+        printf("Case %d:\n", tid);
+        for (int i = 0; i < q; ++i) {
+            printf("%d\n", answer[i]);
+        }
     }
-
-    return 0;
 }

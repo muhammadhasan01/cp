@@ -3,7 +3,7 @@ struct BIT {
     int n;
     vector<T> bit;
     
-    BIT(int sz) : n(sz), bit(sz + 1) {}
+    BIT(int _n) : n(_n), bit(_n + 1) {}
 
     void add(int x, T val) {
         for ( ; x <= n; x += x & -x)

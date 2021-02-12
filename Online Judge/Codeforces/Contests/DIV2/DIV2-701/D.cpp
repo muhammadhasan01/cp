@@ -6,7 +6,7 @@ const int N = 505;
 const int K = 16;
 
 int n, m;
-int lcm = 1;
+int LCM = 1;
 int a[N][N];
 
 int main() {
@@ -15,7 +15,7 @@ int main() {
     cout.tie(0);
 
     for (int i = 1; i <= K; i++) {
-        lcm = (lcm / __gcd(lcm, i)) * i;
+        LCM = (LCM / __gcd(LCM, i)) * i;
     }
     cin >> n >> m;
     for (int i = 1; i <= n; i++) {
@@ -27,9 +27,9 @@ int main() {
         for (int j = 1; j <= m; j++) {
             int ans;
             if ((i + j) % 2 == 0) {
-                ans = lcm;
+                ans = LCM;
             } else {
-                ans = lcm + (a[i][j] * a[i][j] * a[i][j] * a[i][j]);
+                ans = LCM + (a[i][j] * a[i][j] * a[i][j] * a[i][j]);
             }
             cout << ans << " \n"[j == m];
         }

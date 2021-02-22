@@ -4,6 +4,7 @@ struct DSU {
     
     DSU(int _n) : n(_n), par(_n), sz(_n) {
         iota(par.begin(), par.end(), 0);
+        fill(sz.begin(), sz.end(), 1);
     }
 
     int fpar(int x) {

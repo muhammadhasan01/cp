@@ -14,7 +14,7 @@ struct Segtree {
         return (x > y ? x : y);
     }
 
-    void build(int v, int s, int e, t_data * a) {
+    void build(int v, int s, int e) {
         if (s == e) {
             t[v] = a[s];
         } else {
@@ -38,7 +38,7 @@ struct Segtree {
         t[v] = combine(t[v << 1], t[v << 1 | 1]);
     }
 
-    t_data get(int v, int s, int e, t_data l, t_data r) {
+    t_data get(int v, int s, int e, int l, int r) {
         if (e < l || s > r || l > r)
             return TERM;
         if (l <= s && e <= r)

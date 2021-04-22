@@ -16,7 +16,7 @@ struct SegtreeLazy {
         return (x > y ? x : y);
     }
 
-    void build(int v, int s, int e, t_data * a) {
+    void build(int v, int s, int e) {
         lazy[v] = 0;
         if (s == e) {
             t[v] = a[s];

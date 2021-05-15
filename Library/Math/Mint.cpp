@@ -2,7 +2,7 @@ struct mint {
     const int MOD = 1e9 + 7;
     int x;
 
-    mint(int _x) : x(_x) {}
+    mint(int _x) : x((_x % MOD + MOD) % MOD) {}
 
     mint() : x(0) {}
 

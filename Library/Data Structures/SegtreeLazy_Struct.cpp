@@ -58,3 +58,7 @@ struct SegtreeLazy {
         return combine(p1, p2);
     }
 };
+
+// const int N = 1e5;
+// const int INF = 2e9;
+// SegtreeLazy<N, int, -INF> sgt;

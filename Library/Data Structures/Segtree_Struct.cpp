@@ -1,4 +1,4 @@
-template<int N, typename T, T Term>
+template<int N, typename T, T TERM>
 struct Segtree {
     vector<T> t;
     Segtree() {
@@ -44,3 +44,7 @@ struct Segtree {
         return combine(p1, p2);
     }
 };
+
+// const int N = 1e5;
+// const int INF = 2e9;
+// Segtree<N, int, -INF> sgt;

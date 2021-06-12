@@ -1,31 +1,26 @@
-const int N = 2e5 + 5;
-
-typedef int t_data;
-
-const t_data TERM = 0;
-
+template<int N, typename T, T Term>
 struct Segtree {
-    vector<t_data> t;
+    vector<T> t;
     Segtree() {
         t.assign(4 * N, 0);
     }
 
-    t_data combine(const t_data& x, const t_data& y) {
+    T combine(const T& x, const T& y) {
         return (x > y ? x : y);
     }
 
-    void build(int v, int s, int e) {
+    void build(int v, int s, int e, vector<T>& a) {
         if (s == e) {
             t[v] = a[s];
         } else {
             int mid = (s + e) >> 1;
-            build(v << 1, s, mid);
-            build(v << 1 | 1, mid + 1, e);
+            build(v << 1, s, mid, a);
+            build(v << 1 | 1, mid + 1, e, a);
             t[v] = combine(t[v << 1], t[v << 1 | 1]);
         }
     }
 
-    void update(int v, int s, int e, int pos, t_data val) {
+    void update(int v, int s, int e, int pos, T val) {
         if (s == e && s == pos) {
             t[v] += val;
             return;
@@ -38,14 +33,14 @@ struct Segtree {
         t[v] = combine(t[v << 1], t[v << 1 | 1]);
     }
 
-    t_data get(int v, int s, int e, int l, int r) {
+    T get(int v, int s, int e, int l, int r) {
         if (e < l || s > r || l > r)
             return TERM;
         if (l <= s && e <= r)
             return t[v];
         int mid = (s + e) >> 1;
-        t_data p1 = get(v << 1, s, mid, l, r);
-        t_data p2 = get(v << 1 | 1, mid + 1, e, l, r);
+        T p1 = get(v << 1, s, mid, l, r);
+        T p2 = get(v << 1 | 1, mid + 1, e, l, r);
         return combine(p1, p2);
     }
 };

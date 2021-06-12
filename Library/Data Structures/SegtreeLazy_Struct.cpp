@@ -1,10 +1,10 @@
-template<int N, typename T, T TERM>
+template<int MAXN, typename T, T TERM>
 struct SegtreeLazy {
     vector<T> t;
     vector<int> lazy;
     SegtreeLazy() {
-        t.assign(4 * N, 0);
-        lazy.assign(4 * N, 0);
+        t.assign(4 * MAXN, 0);
+        lazy.assign(4 * MAXN, 0);
     }
 
     T combine(const T& x, const T& y) {

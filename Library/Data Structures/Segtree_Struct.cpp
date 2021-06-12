@@ -1,8 +1,8 @@
-template<int N, typename T, T TERM>
+template<int MAXN, typename T, T TERM>
 struct Segtree {
     vector<T> t;
     Segtree() {
-        t.assign(4 * N, 0);
+        t.assign(4 * MAXN, 0);
     }
 
     T combine(const T& x, const T& y) {

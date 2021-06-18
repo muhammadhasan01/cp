@@ -1,9 +1,9 @@
-template<int MAXN, typename T, T TERM>
+template<int MAXN, typename T, const T& TERM>
 struct SegtreeLazy {
     vector<T> t;
     vector<int> lazy;
     SegtreeLazy() {
-        t.assign(4 * MAXN, 0);
+        t.assign(4 * MAXN, TERM);
         lazy.assign(4 * MAXN, 0);
     }
 

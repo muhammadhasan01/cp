@@ -28,9 +28,11 @@ int main() {
     for (int x = 1; x <= n; x++) {
         for (int y = x; y <= n; y++) {
             long long sum = -INF;
+            vector<long long> dp(n + 1);
             for (int k = 1; k <= n; k++) {
                 long long val = pre[n][k] - (pre[y][k] - pre[x - 1][k]);
-                sum = max(val, sum + val);
+                dp[k] = max(val, val + dp[k - 1]);
+                sum = max(sum, dp[k]);
             }
             for (int i = x; i <= y; i++) {
                 sum += sum_r[i];

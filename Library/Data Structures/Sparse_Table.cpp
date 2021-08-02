@@ -2,11 +2,12 @@
 // https://cp-algorithms.com/data_structures/sparse-table.html
 template<int MAXN, int MAXLOG, typename T>
 struct sparse_table {
+	int n;
 	vector<vector<T>> dp;
 	vector<int> prec_lg2;
 
 	sparse_table() {
-		dp.assign(MAXN, vector<int>(MAXLOG, 0));
+		dp.assign(MAXN, vector<T>(MAXLOG, 0));
 		prec_lg2.assign(MAXN, 0);
 	}
 

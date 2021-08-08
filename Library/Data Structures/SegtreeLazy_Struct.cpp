@@ -23,20 +23,24 @@ struct SegtreeLazy {
         t[v] = combine(t[v << 1], t[v << 1 | 1]);
     }
 
+    void upd(T& cur, T val) {
+        cur += val;
+    }
+
     void push(int v, int s, int e) {
         if (lazy[v] == 0 || s == e) return;
-        t[v << 1] += lazy[v];
-        t[v << 1 | 1] += lazy[v];
-        lazy[v << 1] += lazy[v];
-        lazy[v << 1 | 1] += lazy[v];
+        upd(t[v << 1], lazy[v]);
+        upd(t[v << 1 | 1], lazy[v]);
+        upd(lazy[v << 1], lazy[v]);
+        upd(lazy[v << 1 | 1], lazy[v]);
         lazy[v] = 0;
     }
 
     void update(int v, int s, int e, int l, int r, T val) {
         if (l > r) return;
         if (l == s && e == r) {
-            t[v] += val;
-            lazy[v] += val;
+            upd(t[v], val);
+            upd(lazy[v], val);
             return;
         }
         push(v, s, e);

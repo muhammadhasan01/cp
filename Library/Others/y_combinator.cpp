@@ -11,3 +11,11 @@ template<class Fun> class y_combinator_result {
 template<class Fun> decltype(auto) y_combinator(Fun && fun) {
     return y_combinator_result<decay_t<Fun>>(forward<Fun>(fun));
 }
+
+auto fact = y_combinator([&](auto self, int x) -> void {
+    if (x == 0) {
+        return 1;
+    }
+    return self(x - 1) * x;
+});
+cout << fact(5) << '\n';

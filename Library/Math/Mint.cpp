@@ -68,4 +68,8 @@ struct mint {
     friend mint operator/(const mint &lhs, const mint &rhs) {
         return mint(lhs) /= rhs;
     }
+
+    friend ostream& operator<<(ostream &os, const mint &m) {
+        return os << m.x;
+    }
 };

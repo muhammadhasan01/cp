@@ -3,6 +3,7 @@ struct mint {
     int x;
 
     mint(int _x) : x((_x % MOD + MOD) % MOD) {}
+    mint(long long _x) : x((_x % MOD + MOD) % MOD) {}
 
     mint() : x(0) {}
 
@@ -73,3 +74,21 @@ struct mint {
         return os << m.x;
     }
 };
+
+const int N = 3e3 + 5;
+ 
+mint fact[N];
+mint invf[N];
+ 
+mint C(int a, int b) {
+    if (a < b) return 0;
+    return fact[a] * invf[b] * invf[a - b];
+}
+ 
+void init() {
+    fact[0] = invf[0] = 1;
+    for (int i = 1; i < N; i++) {
+        fact[i] = fact[i - 1] * i;
+        invf[i] = fact[i].inv();
+    }
+}

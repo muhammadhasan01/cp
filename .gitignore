@@ -1,8 +1,7 @@
 *.exe
 *.in
 *.out
-input.txt
-output.txt
+*.txt
 dbg.cpp
 /random
 FBHC_2020

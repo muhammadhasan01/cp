@@ -29,4 +29,8 @@ template<typename T> void out(T n, char CC) {
     while (i >= 0) putchar(snum[i--]);
     putchar(CC);
 }
+
+#define fast_function \
+  __attribute__((__optimize__("O3, unroll-loops"))) \
+  __attribute__((__target__("avx, avx2, sse, sse2, sse3, sse4, popcnt, fma")))
 /** END OF DESPERATE OPTIMIZATION **/

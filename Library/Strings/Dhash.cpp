@@ -40,9 +40,13 @@ struct dhash {
     dhash() {
         p = make_pair(0LL, 0LL);
     }
-    
+
     dhash(long long x, long long y) {
-        p = make_pair(norm(x, mod1), y);
+        p = make_pair(norm(x, mod1), norm(y, mod2));
+    }
+
+    dhash(long long x) {
+        *this = dhash(x, x);
     }
 
     dhash operator+(dhash y) {
@@ -65,6 +69,13 @@ struct dhash {
         auto cur = this->p;
         cur.first = (cur.first * x) % mod1;
         cur.second = (cur.second * x) % mod2;
+        return dhash(cur.first, cur.second);
+    }
+
+    dhash operator^(int x) {
+        auto cur = this->p;
+        cur.first = (cur.first * pwr1[x]) % mod1;
+        cur.second = (cur.second * pwr2[x]) % mod2;
         return dhash(cur.first, cur.second);
     }
 };

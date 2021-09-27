@@ -73,10 +73,6 @@ struct mint {
     friend ostream& operator<<(ostream &os, const mint &m) {
         return os << m.x;
     }
-
-    friend ostream& operator>>(ostream &os, const mint &m) {
-        return os >> m.x;
-    }
 };
 
 const int N = 3e3 + 5;

@@ -2,6 +2,8 @@ template<typename T>
 struct compresser {
     vector<T> nums;
     
+    compresser() { }
+
     compresser(vector<T>& v) {
         nums.assign(v.begin(), v.end());
         finish();

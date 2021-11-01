@@ -21,6 +21,10 @@ struct compresser {
     int get_id(T x) {
         return lower_bound(nums.begin(), nums.end(), x) - nums.begin() + 1;
     }
+
+    T get_value(int id) {
+        return nums[id - 1];
+    }
  
     int get_len() {
         return nums.size();

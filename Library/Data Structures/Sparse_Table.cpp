@@ -15,7 +15,7 @@ struct sparse_table {
         return min(a, b);
     }
 
-    void init(vector<T> &a) {
+    void build(vector<T> &a) {
         n = a.size();
         for (int i = 2; i < 2 * n; i++) {
             prec_lg2[i] = prec_lg2[i >> 1] + 1;

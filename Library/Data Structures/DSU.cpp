@@ -8,7 +8,10 @@ struct DSU {
     }
 
     int fpar(int x) {
-        return (par[x] == x ? x : fpar(par[x]));
+        if (par[x] == x) {
+            return x;
+        }
+        return par[x] = fpar(par[x]);
     }
 
     bool merge(int u, int v) {

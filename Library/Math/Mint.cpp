@@ -75,7 +75,7 @@ struct mint {
     }
 };
 
-const int N = 3e3 + 5;
+const int N = 2e5 + 5;
  
 mint fact[N];
 mint invf[N];

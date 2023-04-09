@@ -11,8 +11,9 @@ bool onStack[N];
 
 void tarjan(int u) {
     tin[u] = low[u] = ++timer;
-    st.emplace(u); onStack[u] = true;
-    for (auto v : adj[u]) {
+    st.emplace(u);
+    onStack[u] = true;
+    for (int v : adj[u]) {
         if (tin[v] == 0) {
             tarjan(v);
             low[u] = min(low[u], low[v]);
@@ -20,10 +21,13 @@ void tarjan(int u) {
             low[u] = min(low[u], tin[v]);
         }
     }
-    if (tin[u] != low[u]) return;
+    if (tin[u] != low[u]) {
+        return;
+    }
     int w = 0; numComponent++;
     do {
-        w = st.top(); st.pop();
+        w = st.top();
+        st.pop();
         onStack[w] = 0;
         comp[w] = numComponent;
     } while (w != u && !st.empty());
@@ -31,7 +35,9 @@ void tarjan(int u) {
 
 void SCC() {
     for (int i = 1; i <= n; i++) {
-        if (tin[i]) continue;
+        if (tin[i]) {
+            continue;
+        }
         tarjan(i);
     }
 }

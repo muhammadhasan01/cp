@@ -28,7 +28,7 @@ void tarjan(int u) {
     do {
         w = st.top();
         st.pop();
-        onStack[w] = 0;
+        onStack[w] = false;
         comp[w] = numComponent;
     } while (w != u && !st.empty());
 }

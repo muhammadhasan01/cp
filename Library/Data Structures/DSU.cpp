@@ -2,7 +2,7 @@ struct DSU {
     int n;
     vector<int> par, sz;
     
-    DSU(int _n) : n(_n), par(_n), sz(_n) {
+    DSU(int t_n) : n(t_n), par(t_n), sz(t_n) {
         iota(par.begin(), par.end(), 0);
         fill(sz.begin(), sz.end(), 1);
     }
@@ -21,5 +21,14 @@ struct DSU {
         par[pv] = pu;
         sz[pu] += sz[pv];
         return true;
+    }
+
+    bool isSameParent(int u, int v) {
+        return fpar(u) == fpar(v);
+    }
+
+    int getSize(int x) {
+        int px = fpar(x);
+        return sz[px];
     }
 };

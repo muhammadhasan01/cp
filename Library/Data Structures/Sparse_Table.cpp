@@ -1,24 +1,23 @@
 // Taken from : https://github.com/mochow13/competitive-programming-library/blob/master/Data%20Structures/RMQ%20Sparse%20Table.cpp
 // https://cp-algorithms.com/data_structures/sparse-table.html
-template<int MAXN, int MAXLOG, typename T>
-struct sparse_table {
+template<typename T>
+struct SparseTable {
     int n;
     vector<vector<T>> dp;
-    vector<int> prec_lg2;
+    vector<int> prec;
 
-    sparse_table() {
-        dp.assign(MAXN, vector<T>(MAXLOG, 0));
-        prec_lg2.assign(MAXN, 0);
-    }
-
-    T combine(const T& a, const T& b) {
-        return min(a, b);
-    }
-
-    void build(vector<T> &a) {
+    SparseTable(vector<T>& a) {
         n = a.size();
+        int len = 1;
+        int k = 0;
+        while (len <= 2 * n) {
+            len <<= 1;
+            ++k;
+        }
+        dp.assign(len, vector<T>(k, 0));
+        prec.assign(len, 0);
         for (int i = 2; i < 2 * n; i++) {
-            prec_lg2[i] = prec_lg2[i >> 1] + 1;
+            prec[i] = prec[i >> 1] + 1;
         }
         for (int i = 0; i < n; i++) {
             dp[i][0] = a[i];
@@ -30,8 +29,12 @@ struct sparse_table {
         }
     }
 
+    T combine(const T& a, const T& b) {
+        return min(a, b);
+    }
+
     T query(int l, int r) {
-        int k = prec_lg2[r - l + 1];
+        int k = prec[r - l + 1];
         return combine(dp[l][k], dp[r - (1 << k) + 1][k]);
     }
 };

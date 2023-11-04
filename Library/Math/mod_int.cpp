@@ -1,4 +1,3 @@
-// from: https://codeforces.com/profile/neal
 template<const int &MOD>
 struct _m_int {
     int val;
@@ -148,4 +147,22 @@ struct _m_int {
 template<const int &MOD> _m_int<MOD> _m_int<MOD>::save_inv[_m_int<MOD>::SAVE_INV];
  
 extern const int MOD = 1e9 + 7;
-using mod_int = _m_int<MOD>;
+using mint = _m_int<MOD>;
+
+const int N = 2e5 + 5;
+ 
+mint fact[N];
+mint invf[N];
+ 
+mint C(int a, int b) {
+    if (a < b) return 0;
+    return fact[a] * invf[b] * invf[a - b];
+}
+ 
+void init() {
+    fact[0] = invf[0] = 1;
+    for (int i = 1; i < N; i++) {
+        fact[i] = fact[i - 1] * i;
+        invf[i] = fact[i].inv();
+    }
+}

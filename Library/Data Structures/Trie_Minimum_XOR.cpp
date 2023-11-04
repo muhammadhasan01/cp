@@ -1,10 +1,4 @@
-#include<bits/stdc++.h>
-using namespace std;
-
-// Credits to : https://codeforces.com/profile/yoganteng
-
-const int N = 3e5 + 5;
-int n, a[N], p[N];
+// Inspiration from : https://codeforces.com/profile/yoganteng
 struct Trie {
     struct Node {
         Node *child[2];
@@ -14,76 +8,71 @@ struct Trie {
             cnt = 0;
         }
     };
-
+ 
     Node *head;
-
+ 
     Trie() {
         head = new Node();
     }
-
+ 
     void insert(int val) {
         Node *cur = head;
         for (int i = 30; i >= 0; i--) {
             bool v = val & (1 << i);
-            ++cur -> cnt;
-            if (cur -> child[v] == NULL) {
-                cur -> child[v] = new Node();
+            ++cur->cnt;
+            if (cur->child[v] == NULL) {
+                cur->child[v] = new Node();
             }
-            cur = cur -> child[v];
+            cur = cur->child[v];
         }
-        ++cur -> cnt;
+        ++cur->cnt;
     }
-
+ 
     void erase(int val) {
         Node *cur = head;
         for (int i = 30; i >= 0; i--) {
             bool v = val & (1 << i);
-            --cur -> cnt;
-            cur = cur -> child[v];
+            --cur->cnt;
+            cur = cur->child[v];
         }
-        --cur -> cnt;
+        --cur->cnt;
     }
-
-    int getMinXOR(int val, int &id) {
+ 
+    int getMaxXOR(int val) {
         Node *cur = head;
-        int res = 0, valz = val;
+        int res = 0;
         for (int i = 30; i >= 0; i--) {
             bool v = val & (1 << i);
-            if (cur -> child[v] != NULL && cur -> child[v] -> cnt != 0) {
-                cur = cur -> child[v];
-            } else {
-                cur = cur -> child[v ^ 1];
+            bool w = !v;
+            if (cur->child[w] != NULL && cur->child[w]->cnt != 0) {
+                cur = cur->child[w];
                 res += (1 << i);
-                valz ^= (1 << i);
+                continue;
             }
+            if (cur->child[v] == NULL) {
+                cur->child[v] = new Node();
+            }
+            cur = cur->child[v];
         }
-        id = lower_bound(p + 1, p + 1 + n, valz) - p;
         return res;
     }
-
+ 
+    int getMinXOR(int val) {
+        Node *cur = head;
+        int res = 0;
+        for (int i = 30; i >= 0; i--) {
+            bool v = val & (1 << i);
+            if (cur->child[v] != NULL && cur->child[v]->cnt != 0) {
+                cur = cur->child[v];
+                continue;
+            }
+            bool w = !v;
+            if (cur->child[w] == NULL) {
+                cur->child[w] = new Node();
+            }
+            cur = cur->child[w];
+            res += (1 << i);
+        }
+        return res;
+    }
 };
-
-int main() {
-    ios_base::sync_with_stdio(0);
-    cin.tie(0);
-    cout.tie(0);
-
-    Trie trie;
-    cin >> n;
-    for (int i = 1; i <= n; i++) {
-        cin >> a[i];
-    }
-    for (int i = 1; i <= n; i++) {
-        cin >> p[i];
-        trie.insert(p[i]);
-    }
-    sort(p + 1, p + 1 + n);
-    for (int i = 1; i <= n; i++) {
-        int id = 0;
-        int res = trie.getMinXOR(a[i], id);
-        cout << res << (i == n ? '\n' : ' ');
-        trie.erase(p[id]);
-    }
-
-    return 0;
-}

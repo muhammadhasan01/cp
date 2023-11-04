@@ -7,9 +7,7 @@ int main() {
     cin.tie(0);
     cout.tie(0);
     
-    string s, t;
-    cin >> s >> t;
-    cout << s << t << '\n';
+    
     
     return 0;
 }

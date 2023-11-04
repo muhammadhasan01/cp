@@ -2,13 +2,41 @@
 
 using namespace std;
 
-const int N = 1e4 + 5;
+#define sim template < class c
+#define ris return * this
+#define dor > debug & operator <<
+#define eni(x) sim > typename \
+  enable_if<sizeof dud<c>(0) x 1, debug&>::type operator<<(c i) {
+sim > struct rge { c b, e; };
+sim > rge<c> range(c i, c j) { return rge<c>{i, j}; }
+sim > auto dud(c* x) -> decltype(cerr << *x, 0);
+sim > char dud(...);
+struct debug {
+#ifdef LOCAL
+~debug() { cerr << endl; }
+eni(!=) cerr << boolalpha << i; ris; }
+eni(==) ris << range(begin(i), end(i)); }
+sim, class b dor(pair < b, c > d) {
+  ris << "(" << d.first << ", " << d.second << ")";
+}
+sim dor(rge<c> d) {
+  *this << "[";
+  for (auto it = d.b; it != d.e; ++it)
+    *this << ", " + 2 * (it == d.b) << *it;
+  ris << "]";
+}
+#else
+sim dor(const c&) { ris; }
+#endif
+};
+#define imie(...) "[" << #__VA_ARGS__ ": " << (__VA_ARGS__) << "] "
+
+const int N = 3e5 + 5;
 
 int tc;
 int n, _u, _v, _k;
 string str;
-pair<int, int> edges[N];
-int valEdge[N], val[N];
+int val[N];
 vector<int> adj[N];
 int depth[N];
 int head[N], heavy[N], par[N];
@@ -17,7 +45,7 @@ int curPos;
 int t[4 * N];
 
 int combine(int u, int v) {
-    return u + v;
+    return u | v;
 }
 
 void build(int v, int s, int e) {
@@ -84,9 +112,18 @@ int queryPath(int u, int v) {
         res = combine(res, curRes);
     }
     if (depth[u] > depth[v]) swap(u, v);
-    int lastRes = get(1, 1, curPos, pos[u] + 1, pos[v]);
+    int lastRes = get(1, 1, curPos, pos[u], pos[v]);
     res = combine(res, lastRes);
     return res;
+}
+
+int distance(int u, int v) {
+    int tu = u, tv = v;
+    for (; head[u] != head[v]; u = par[head[u]]) {
+        if (depth[head[u]] < depth[head[v]]) swap(u, v);
+    }
+    int lca = (depth[u] < depth[v] ? u : v);
+    return depth[u] + depth[v] - 2 * depth[lca];
 }
 
 int kthNode(int u, int v, int k) {
@@ -139,34 +176,31 @@ int main() {
     cin >> tc;
     while (tc--) {
         cin >> n;
+        vector<int> a(n + 1);
+        for (int i = 1; i <= n; i++) {
+            cin >> a[i];
+        }
         for (int i = 1; i < n; i++) {
-            cin >> _u >> _v >> valEdge[i];
-            edges[i] = make_pair(_u, _v);
+            cin >> _u >> _v;
             adj[_u].emplace_back(_v);
             adj[_v].emplace_back(_u);
         }
         init();
-        val[pos[1]] = 0;
-        for (int i = 1; i < n; i++) {
-            int u = edges[i].first;
-            int v = edges[i].second;
-            if (par[u] != v)
-                swap(u, v), swap(edges[i].first, edges[i].second);
-            val[pos[u]] = valEdge[i];
+        for (int i = 1; i <= n; i++) {
+            val[pos[i]] = a[i];
         }
         build(1, 1, curPos);
-        while (1) {
-            cin >> str;
-            if (str[1] == 'O') break;
+        int Q;
+        cin >> Q;
+        while (Q--) {
             cin >> _u >> _v;
-            if (str[0] == 'D') {
-                cout << queryPath(_u, _v) << '\n';
-            } else if (str[0] == 'K') {
-                cin >> _k;
-                cout << kthNode(_u, _v, _k) << '\n';
-            } else {
-                assert(false);
-            }
+            int nodes = distance(_u, _v) + 1;
+            int mid = (nodes + 1) / 2;
+            int midNode = kthNode(_u, _v, mid);
+            debug() << imie(nodes) imie(mid) imie(midNode);
+            debug() << imie(queryPath(_u, midNode));
+            debug() << imie(queryPath(midNode, _v)); 
+            cout << __builtin_popcount(queryPath(_u, midNode)) +  __builtin_popcount(queryPath(midNode, _v)) << '\n';
         }
         reset();
     }

@@ -1,10 +1,10 @@
 template<typename T>
-struct compresser {
+struct Compresser {
     vector<T> nums;
     
-    compresser() { }
+    Compresser() { }
 
-    compresser(vector<T>& v) {
+    Compresser(vector<T>& v) {
         nums.assign(v.begin(), v.end());
         finish();
     }
@@ -18,15 +18,15 @@ struct compresser {
         nums.resize(unique(nums.begin(), nums.end()) - nums.begin());
     }
  
-    int get_id(T x) {
+    int getId(T x) {
         return lower_bound(nums.begin(), nums.end(), x) - nums.begin() + 1;
     }
 
-    T get_value(int id) {
+    T getValue(int id) {
         return nums[id - 1];
     }
  
-    int get_len() {
+    int getLen() {
         return nums.size();
     }
 };

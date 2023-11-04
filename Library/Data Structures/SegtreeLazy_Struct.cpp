@@ -1,4 +1,4 @@
-template<int MAXN, typename T, const T& TERM>
+template<int MAXN, typename T, const T TERM>
 struct SegtreeLazy {
     vector<T> t;
     vector<int> lazy;

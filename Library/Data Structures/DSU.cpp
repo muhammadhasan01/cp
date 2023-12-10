@@ -15,9 +15,14 @@ struct DSU {
     }
 
     bool merge(int u, int v) {
-        int pu = fpar(u), pv = fpar(v);
-        if (pu == pv) return false;
-        if (sz[pu] < sz[pv]) swap(pu, pv);
+        int pu = fpar(u);
+        int pv = fpar(v);
+        if (pu == pv) {
+            return false;
+        }
+        if (sz[pu] < sz[pv]) {
+            swap(pu, pv);
+        }
         par[pv] = pu;
         sz[pu] += sz[pv];
         return true;

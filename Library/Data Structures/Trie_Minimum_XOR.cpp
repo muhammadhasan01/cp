@@ -14,7 +14,7 @@ struct Trie {
     Trie() {
         head = new Node();
     }
- 
+    
     void insert(int val) {
         Node *cur = head;
         for (int i = 30; i >= 0; i--) {

@@ -4,74 +4,77 @@ using namespace std;
 
 struct Trie {
     struct Node {
-        vector<unique_ptr<Node>> child;
-        int cnt = 0;
-        Node() : cnt(0), child(2) {
+        Node *child[2];
+        int cnt;
+        Node() {
+            child[0] = child[1] = NULL;
+            cnt = 0;
         }
     };
-
-    unique_ptr<Node> head;
-
-    Trie() : head(make_unique<Node>()) {
+ 
+    Node *head;
+ 
+    Trie() {
+        head = new Node();
     }
-
+ 
     void insert(int val) {
-        Node* cur = head.get();
-        for (int i = 30; i >= 0; --i) {
+        Node *cur = head;
+        for (int i = 30; i >= 0; i--) {
             bool v = val & (1 << i);
             ++cur->cnt;
-            if (!cur->child[v]) {
-                cur->child[v] = make_unique<Node>();
+            if (cur->child[v] == NULL) {
+                cur->child[v] = new Node();
             }
-            cur = cur->child[v].get();
+            cur = cur->child[v];
         }
         ++cur->cnt;
     }
-
+ 
     void erase(int val) {
-        Node* cur = head.get();
-        for (int i = 30; i >= 0; --i) {
+        Node *cur = head;
+        for (int i = 30; i >= 0; i--) {
             bool v = val & (1 << i);
             --cur->cnt;
-            cur = cur->child[v].get();
+            cur = cur->child[v];
         }
         --cur->cnt;
     }
-
+ 
     int getMaxXOR(int val) {
-        Node* cur = head.get();
+        Node *cur = head;
         int res = 0;
-        for (int i = 30; i >= 0; --i) {
+        for (int i = 30; i >= 0; i--) {
             bool v = val & (1 << i);
             bool w = !v;
-            if (cur->child[w] && cur->child[w]->cnt != 0) {
-                cur = cur->child[w].get();
+            if (cur->child[w] != NULL && cur->child[w]->cnt != 0) {
+                cur = cur->child[w];
                 res += (1 << i);
-            } else {
-                if (!cur->child[v]) {
-                    cur->child[v] = make_unique<Node>();
-                }
-                cur = cur->child[v].get();
+                continue;
             }
+            if (cur->child[v] == NULL) {
+                cur->child[v] = new Node();
+            }
+            cur = cur->child[v];
         }
         return res;
     }
-
+ 
     int getMinXOR(int val) {
-        Node* cur = head.get();
+        Node *cur = head;
         int res = 0;
-        for (int i = 30; i >= 0; --i) {
+        for (int i = 30; i >= 0; i--) {
             bool v = val & (1 << i);
-            if (cur->child[v] && cur->child[v]->cnt != 0) {
-                cur = cur->child[v].get();
-            } else {
-                bool w = !v;
-                if (!cur->child[w]) {
-                    cur->child[w] = make_unique<Node>();
-                }
-                cur = cur->child[w].get();
-                res += (1 << i);
+            if (cur->child[v] != NULL && cur->child[v]->cnt != 0) {
+                cur = cur->child[v];
+                continue;
             }
+            bool w = !v;
+            if (cur->child[w] == NULL) {
+                cur->child[w] = new Node();
+            }
+            cur = cur->child[w];
+            res += (1 << i);
         }
         return res;
     }

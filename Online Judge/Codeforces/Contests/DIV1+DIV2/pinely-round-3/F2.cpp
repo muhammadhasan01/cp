@@ -1,3 +1,7 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
 template<const int &MOD>
 struct _m_int {
     int val;
@@ -146,7 +150,7 @@ struct _m_int {
  
 template<const int &MOD> _m_int<MOD> _m_int<MOD>::save_inv[_m_int<MOD>::SAVE_INV];
  
-extern const int MOD = 1e9 + 7;
+extern const int MOD = 998244353;
 using mint = _m_int<MOD>;
 
 const int N = 2e5 + 5;
@@ -174,4 +178,69 @@ void init() {
         fact[i] = fact[i - 1] * i;
         invf[i] = fact[i].inv();
     }
+}
+
+void solve() {
+    int n;
+    cin >> n;
+    vector<int> a(n + 1);
+    for (int i = 1; i <= n; i++) {
+        cin >> a[i];
+    }
+    if (a[n] == -1) {
+        a[n] = n;
+    }
+    if (a[n] != n) {
+        cout << 0 << '\n';
+        return;
+    }
+    for (int i = 1; i <= n; i++) {
+        if (a[i] > i) {
+            cout << 0 << '\n';
+            return;
+        }
+    }
+    vector<pair<int, int>> p;
+    p.emplace_back(0, 0);
+    for (int i = 1; i <= n; i++) {
+        if (a[i] != -1) {
+            p.emplace_back(a[i], i);
+        }
+    }
+    int m = (int) p.size();
+    mint ans = 1;
+    for (int i = 0; i + 1 < m; i++) {
+        auto [ax, x] = p[i];
+        auto [ay, y] = p[i + 1];
+        int need = ay - ax;
+        int slot = y - x;
+        int carry = x - ax;
+        mint res = 0;
+        for (int take = 0; take <= need; take++) {
+            if (take > slot || take > carry) {
+                break;
+            }
+            int other = need - take;
+            if (other > slot) {
+                continue;
+            }
+            res = (res + ans * C(carry, take) * P(slot, take) * C(slot, other) * P(carry + slot - take, other));
+        }
+        ans = res;
+    }
+    cout << ans << '\n';
+}
+
+int main() { 
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    
+    init();
+    int tc = 1;
+    cin >> tc;
+    for (int t = 1; t <= tc; t++) {
+        solve();
+    }
+    
+    return 0;
 }

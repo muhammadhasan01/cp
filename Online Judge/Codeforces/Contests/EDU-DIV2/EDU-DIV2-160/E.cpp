@@ -1,10 +1,14 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
 /** Min Cost Max Flow **/
 /* complexity: O(min(E^2 V log V, E log V F)) */
 /* Valid for negative cost, but not for negative cycle */
  
 template<typename F, typename C>
 struct MaxFlowMinCost {
-    const static int MAX_NODES = 5010;
+    const static int MAX_NODES = 510;
     const F kMaxFlow = 1000000000LL;
     const C kLongestCost = 1000000000LL;
     int nodes;
@@ -22,13 +26,14 @@ struct MaxFlowMinCost {
         F f, cap;
         C cost;
         int rev;
+        bool isReverse;
     };
 
     vector<Edge> graph[MAX_NODES];
 
     void addEdge(int s, int t, F cap, C cost) {
-        Edge a = {t, 0, cap, cost, (int) graph[t].size()};
-        Edge b = {s, 0, 0, -cost, (int) graph[s].size()};
+        Edge a = {t, 0, cap, cost, (int) graph[t].size(), false};
+        Edge b = {s, 0, 0, -cost, (int) graph[s].size(), true};
         graph[s].push_back(a);
         graph[t].push_back(b);
     }
@@ -106,3 +111,100 @@ struct MaxFlowMinCost {
         return make_pair(flow, flowCost);
     }
 };
+
+int main() {
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    
+    int n, m;
+    cin >> n >> m;
+    vector<vector<int>> a(n, vector<int>(m));
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            cin >> a[i][j];
+        }
+    }
+    vector<int> A(n);
+    for (int i = 0; i < n; i++) {
+        cin >> A[i];
+    }
+    vector<int> B(m);
+    for (int i = 0; i < m; i++) {
+        cin >> B[i];
+    }
+    int total = accumulate(A.begin(), A.end(), 0);
+    if (total != accumulate(B.begin(), B.end(), 0)) {
+        cout << -1 << '\n';
+        return 0;
+    }
+    int nodes = n + m + 2;
+    int source = nodes - 2, sink = nodes - 1;
+    MaxFlowMinCost<int, int> mcmf(nodes);
+    for (int i = 0; i < n; i++) {
+        mcmf.addEdge(source, i, A[i], 0);
+    }
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            mcmf.addEdge(i, j + n, 1, 1 - a[i][j]);
+        }
+    }
+    for (int j = 0; j < m; j++) {
+        mcmf.addEdge(j + n, sink, B[j], 0);
+    }
+    mcmf.run(source, sink);
+    auto& adj = mcmf.graph;
+    {
+        int cur = 0;
+        for (auto& edge : adj[source]) {
+            if (edge.isReverse) {
+                continue;
+            }
+            cur += edge.f;
+        }
+        if (cur != total) {
+            cout << -1 << '\n';
+            return 0;
+        }
+    }
+    {
+        int cur = 0;
+        for (int j = 0; j < m; j++) {
+            for (auto& edge : adj[j + n]) {
+                if (edge.isReverse) {
+                    continue;
+                }
+                if (edge.to == sink) {
+                    cur += edge.f;
+                    break;
+                }
+            }
+        }
+        if (cur != total) {
+            cout << -1 << '\n';
+            return 0;
+        }
+    }
+    vector<vector<int>> b(n, vector<int>(m));
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            for (auto& edge : adj[i]) {
+                if (edge.isReverse) {
+                    continue;
+                }
+                if (edge.to == j + n) {
+                    b[i][j] = edge.f;
+                    break;
+                }
+            }
+        }
+    }
+    int ans = 0;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            ans += (a[i][j] != b[i][j]);
+        }
+    }
+    cout << ans << '\n';
+    
+    return 0;
+}

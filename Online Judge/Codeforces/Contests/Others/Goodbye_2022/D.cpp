@@ -1,3 +1,7 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
 template<const int &MOD>
 struct _m_int {
     int val;
@@ -146,32 +150,165 @@ struct _m_int {
  
 template<const int &MOD> _m_int<MOD> _m_int<MOD>::save_inv[_m_int<MOD>::SAVE_INV];
  
-extern const int MOD = 1e9 + 7;
+extern const int MOD = 998244353;
 using mint = _m_int<MOD>;
 
-const int N = 2e5 + 5;
- 
-mint fact[N];
-mint invf[N];
- 
-mint C(int a, int b) {
-    if (a < b) {
-        return 0;
+struct DSU {
+    int n;
+    vector<int> par, sz;
+    
+    DSU(int t_n) : n(t_n), par(t_n), sz(t_n) {
+        iota(par.begin(), par.end(), 0);
+        fill(sz.begin(), sz.end(), 1);
     }
-    return fact[a] * invf[b] * invf[a - b];
+
+    int fpar(int x) {
+        if (par[x] == x) {
+            return x;
+        }
+        return par[x] = fpar(par[x]);
+    }
+
+    bool merge(int u, int v) {
+        int pu = fpar(u);
+        int pv = fpar(v);
+        if (pu == pv) {
+            return false;
+        }
+        if (sz[pu] < sz[pv]) {
+            swap(pu, pv);
+        }
+        par[pv] = pu;
+        sz[pu] += sz[pv];
+        return true;
+    }
+
+    bool isSameParent(int u, int v) {
+        return fpar(u) == fpar(v);
+    }
+
+    int getSize(int x) {
+        int px = fpar(x);
+        return sz[px];
+    }
+};
+
+void solve() {
+    int n;
+    cin >> n;
+    vector<int> a(n + 1);
+    for (int i = 1; i <= n; i++) {
+        cin >> a[i];
+    }
+    vector<int> b(n + 1);
+    for (int i = 1; i <= n; i++) {
+        cin >> b[i];
+    }
+    DSU dsu(n + 1);
+    vector<int> deg(n + 1);
+    vector<vector<int>> adj(n + 1);
+    for (int i = 1; i <= n; i++) {
+        deg[a[i]]++;
+        deg[b[i]]++;
+        adj[a[i]].emplace_back(b[i]);
+        adj[b[i]].emplace_back(a[i]);
+        dsu.merge(a[i], b[i]);
+    }
+    for (int u = 1; u <= n; u++) {
+        if (deg[u] == 0) {
+            cout << 0 << '\n';
+            return;
+        }
+    }
+    vector<bool> outside(n + 1);
+    queue<int> q;
+    for (int u = 1; u <= n; u++) {
+        if (deg[u] == 1) {
+            q.emplace(u);
+        }
+    }
+    while (!q.empty()) {
+        int u = q.front();
+        q.pop();
+        outside[u] = true;
+        for (int v : adj[u]) {
+            if (--deg[v] == 1) {
+                q.emplace(v);
+            }
+        }
+    }
+    for (int u = 1; u <= n; u++) {
+        if (!outside[u] && deg[u] != 2) {
+            cout << 0 << '\n';
+            return;
+        }
+    }
+    int same = 0;
+    int numComponent = 0;
+    for (int i = 1; i <= n; i++) {
+        same += (a[i] == b[i]);
+        numComponent += (dsu.fpar(i) == i);
+    }
+    cout << mint(n).pow(same) * mint(2).pow(numComponent - same) << '\n';
 }
 
-mint P(int a, int b) {
-    if (a < b) {
-        return 0;
-    }
-    return fact[a] * invf[a - b];
+#define sim template < class c
+#define ris return * this
+#define dor > debug & operator <<
+#define eni(x) sim > typename \
+  enable_if<sizeof dud<c>(0) x 1, debug&>::type operator<<(c i) {
+sim > struct rge { c b, e; };
+sim > rge<c> range(c i, c j) { return rge<c>{i, j}; }
+sim > auto dud(c* x) -> decltype(cerr << *x, 0);
+sim > char dud(...);
+struct debug {
+#ifdef LOCAL
+~debug() { cerr << endl; }
+eni(!=) cerr << boolalpha << i; ris; }
+eni(==) ris << range(begin(i), end(i)); }
+sim, class b dor(pair < b, c > d) {
+  ris << "(" << d.first << ", " << d.second << ")";
 }
- 
-void init() {
-    fact[0] = invf[0] = 1;
-    for (int i = 1; i < N; i++) {
-        fact[i] = fact[i - 1] * i;
-        invf[i] = fact[i].inv();
+sim dor(rge<c> d) {
+  *this << "[";
+  for (auto it = d.b; it != d.e; ++it)
+    *this << ", " + 2 * (it == d.b) << *it;
+  ris << "]";
+}
+#else
+sim dor(const c&) { ris; }
+#endif
+};
+#define imie(...) "[" << #__VA_ARGS__ ": " << (__VA_ARGS__) << "] "
+
+int main() { 
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+
+const string ALPHABET = "abcdefghijklmnopqrstuvwxyz";
+
+int N = 26, K = 8;
+vector<int> p(N, 1); // initialize all elements with the value 1
+// set the N - K first elements with 0
+// this way the last K elements will have the value 1
+for (int i = 0; i < N - K; i++) {
+    p[i] = 0;
+}
+do {
+    string password = "";
+    for (int i = 0; i < N; i++) {
+        if (p[i] == 1) {
+            password += ALPHABET[i];
+        }
     }
+    // use the password to open up the phone!
+} while (next_permutation(p.begin(), p.end()));
+    
+    // int tc = 1;
+    // cin >> tc;
+    // for (int t = 1; t <= tc; t++) {
+    //     solve();
+    // }
+    
+    return 0;
 }

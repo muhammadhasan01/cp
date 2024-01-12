@@ -1,3 +1,7 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
 template<const int &MOD>
 struct _m_int {
     int val;
@@ -146,32 +150,120 @@ struct _m_int {
  
 template<const int &MOD> _m_int<MOD> _m_int<MOD>::save_inv[_m_int<MOD>::SAVE_INV];
  
-extern const int MOD = 1e9 + 7;
+extern const int MOD = 998244353;
 using mint = _m_int<MOD>;
 
-const int N = 2e5 + 5;
- 
-mint fact[N];
-mint invf[N];
- 
-mint C(int a, int b) {
-    if (a < b) {
-        return 0;
+template<typename T>
+struct BIT {
+    int n;
+    vector<T> bit;
+    
+    BIT(int t_n) : n(t_n), bit(t_n + 1) {}
+
+    void add(int x, T val) {
+        for ( ; x > 0; x -= x & -x)
+            bit[x] += val;
     }
-    return fact[a] * invf[b] * invf[a - b];
+
+    T get(int x) {
+        T ret = 0;
+        for ( ; x <= n; x += x & -x)
+            ret += bit[x];
+        return ret;
+    }
+
+    T query(int l, int r) {
+        return get(r) - get(l - 1);
+    }
+};
+
+const int K = 25;
+
+void solve() {
+    int n, k;
+    cin >> n >> k;
+    vector<int> p(n);
+    for (int i = 0; i < n; i++) {
+        cin >> p[i];
+    }
+    vector<int> q(k);
+    for (int i = 0; i < k; i++) {
+        cin >> q[i];
+    }
+    mint ans = 0;
+    {
+        mint res = 0;
+        BIT<mint> bit(k + 5);
+        for (int i = 0; i < k; i++) {
+            int x = q[i] + 1;
+            res += bit.get(x + 1);
+            bit.add(x, 1);
+        }
+        ans += res * n;
+    }
+    sort(q.begin(), q.end());
+    vector<mint> cntUp(K);
+    vector<mint> cntDown(K);
+    mint absolute = 0;
+    for (int i = 0; i < k; i++) {
+        for (int j = 1; j < K; j++) {
+            if (binary_search(q.begin(), q.end(), q[i] + j)) {
+                cntUp[j]++;
+            }
+            if (binary_search(q.begin(), q.end(), q[i] - j)) {
+                cntDown[j]++;
+            }
+        }
+        int l = i + 1, r = k - 1, at = -1;
+        while (l <= r) {
+            int mid = (l + r) >> 1;
+            if (q[mid] - q[i] >= K) {
+                r = mid - 1;
+                at = mid;
+            } else {
+                l = mid + 1;
+            }
+        }
+        if (at != -1) {
+            absolute += n - at;
+        }
+    }
+    ans += absolute * ((1LL) * n * (n - 1) / 2);
+    int m = 2 * n + 5;
+    vector<BIT<mint>> bits(K, BIT<mint>(m));
+    for (int i = 0; i < n; i++) {
+        {
+            int cur = p[i];
+            for (int x = 1; x < K; x++) {
+                ans += bits[x].get(p[i] + 1) * cntUp[x];
+                cur = min(cur * 2, m);
+                bits[x].add(cur, 1);
+            }
+        }
+        {
+            int cur = p[i];
+            for (int x = 1; x < K; x++) {
+                cur = min(cur * 2, m);
+                ans += bits[0].get(cur + 1) * cntDown[x];
+            }
+        }
+        {
+            ans += bits[0].get(p[i] + 1) * k;
+            bits[0].add(p[i], 1);
+        }
+    }
+    cout << ans << '\n';
 }
 
-mint P(int a, int b) {
-    if (a < b) {
-        return 0;
+int main() { 
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    
+    int tc = 1;
+    cin >> tc;
+    for (int t = 1; t <= tc; t++) {
+        solve();
     }
-    return fact[a] * invf[a - b];
-}
- 
-void init() {
-    fact[0] = invf[0] = 1;
-    for (int i = 1; i < N; i++) {
-        fact[i] = fact[i - 1] * i;
-        invf[i] = fact[i].inv();
-    }
+    
+    return 0;
 }

@@ -23,28 +23,18 @@ using namespace std;
 
 // https://www.geeksforgeeks.org/eulers-totient-function/
 
-int phi(int n){
-    int result = n; // initialize result as n
-
-    // consider all prime factors of n and substract their
-    // multiples from result
-    for(int p=2;p*p<=n;p++){
-
-        // check if p is a prime factor
-        if(n%p == 0){
-
-            // if yes, then update n and result
-            while(n%p == 0){
-                n/=p;
+int phi(int n) {
+    int result = n;
+    for (int p = 2; p * p <= n; p++) {
+        if (n % p == 0) {
+            while (n % p == 0) {
+                n /= p;
             }
-            result -= result/p;
+            result -= result / p;
         }
     }
-
-    // if n has a prime factor greater than sqrt(n)
-    // (there can be at-most one such prime factor)
-    if(n > 1){
-        result -= result/n;
+    if (n > 1) {
+        result -= result / n;
     }
     return result;
 }
@@ -53,6 +43,20 @@ int main(){
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
     cout.tie(NULL);
+
+    const int N = 100000;
+
+    vector<int> phi(N + 1);
+    for (int i = 1; i <= N; i++) {
+        phi[i] = i;
+    }
+    for (int i = 2; i <= N; i++) {
+        if (phi[i] == i) {
+            for (int j = i; j <= N; j += i) {
+                phi[j] -= phi[j] / i;
+            }
+        }
+    }
 
     int n = 10;
     forn(i,n){

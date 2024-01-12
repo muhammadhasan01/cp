@@ -1,3 +1,7 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
 template<const int &MOD>
 struct _m_int {
     int val;
@@ -146,32 +150,56 @@ struct _m_int {
  
 template<const int &MOD> _m_int<MOD> _m_int<MOD>::save_inv[_m_int<MOD>::SAVE_INV];
  
-extern const int MOD = 1e9 + 7;
+extern const int MOD = 998244353;
 using mint = _m_int<MOD>;
 
-const int N = 2e5 + 5;
- 
-mint fact[N];
-mint invf[N];
- 
-mint C(int a, int b) {
-    if (a < b) {
-        return 0;
+void solve() {
+    int n;
+    cin >> n;
+    vector<int> a(n);
+    for (int i = 0; i < n; i++) {
+        cin >> a[i];
     }
-    return fact[a] * invf[b] * invf[a - b];
+    vector<int> L(n);
+    {
+        stack<int> st;
+        for (int i = 0; i < n; i++) {
+            while (!st.empty() && a[st.top()] >= a[i]) {
+                st.pop();
+            }
+            L[i] = st.empty() ? -1 : st.top();
+            st.emplace(i);
+        }    
+    }
+    vector<mint> dp(n);
+    vector<mint> res(n);
+    vector<mint> pre(n);
+    for (int i = 0; i < n; i++) {
+        int j = L[i];
+        if (j == -1) {
+            dp[i] = 1 + (i == 0 ? 0 : pre[i - 1]);
+            res[i] = dp[i];
+        } else {
+            dp[i] = (pre[i - 1] - pre[j]) + res[j];
+            res[i] = dp[i] + res[j];
+        }
+        pre[i] = dp[i];
+        if (i > 0) {
+            pre[i] += pre[i - 1];
+        }
+    }
+    cout << res[n - 1] << '\n';
 }
 
-mint P(int a, int b) {
-    if (a < b) {
-        return 0;
+int main() { 
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    
+    int tc = 1;
+    cin >> tc;
+    for (int t = 1; t <= tc; t++) {
+        solve();
     }
-    return fact[a] * invf[a - b];
-}
- 
-void init() {
-    fact[0] = invf[0] = 1;
-    for (int i = 1; i < N; i++) {
-        fact[i] = fact[i - 1] * i;
-        invf[i] = fact[i].inv();
-    }
+    
+    return 0;
 }

@@ -1,3 +1,7 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
 template<const int &MOD>
 struct _m_int {
     int val;
@@ -146,32 +150,78 @@ struct _m_int {
  
 template<const int &MOD> _m_int<MOD> _m_int<MOD>::save_inv[_m_int<MOD>::SAVE_INV];
  
-extern const int MOD = 1e9 + 7;
+extern const int MOD = 998244353;
 using mint = _m_int<MOD>;
 
-const int N = 2e5 + 5;
- 
-mint fact[N];
-mint invf[N];
- 
-mint C(int a, int b) {
-    if (a < b) {
-        return 0;
+struct custom_hash {
+    static uint64_t splitmix64(uint64_t x) {
+        // http://xorshift.di.unimi.it/splitmix64.c
+        x += 0x9e3779b97f4a7c15;
+        x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9;
+        x = (x ^ (x >> 27)) * 0x94d049bb133111eb;
+        return x ^ (x >> 31);
     }
-    return fact[a] * invf[b] * invf[a - b];
+
+    size_t operator()(uint64_t x) const {
+        static const uint64_t FIXED_RANDOM = chrono::steady_clock::now().time_since_epoch().count();
+        return splitmix64(x + FIXED_RANDOM);
+    }
+};
+
+mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());
+
+void solve() {
+    int n;
+    cin >> n;
+    int m = 2 * n;
+    vector<long long> a(m + 1);
+    for (int i = 1; i <= m; i++) {
+        cin >> a[i];
+    }
+    vector<long long> values(n + 1);
+    for (int i = 1; i <= n; i++) {
+        values[i] = rng();
+    }
+    unordered_map<long long, int, custom_hash> mp;
+    mp[0] = 0;
+    long long XOR = 0;
+    vector<int> R(m + 1, -1);
+    for (int i = 1; i <= m; i++) {
+        a[i] = values[a[i]];
+        XOR = (XOR ^ a[i]);
+        if (mp.count(XOR)) {
+            R[mp[XOR] + 1] = i;
+        }
+        mp[XOR] = i;
+    }
+    int segments = 0;
+    mint ans = 1;
+    for (int l = 1; l <= m; l++) {
+        int r = R[l];
+        int cnt = r - l + 1;
+        for (int i = l + 1; i < r; i++) {
+            if (R[i] == -1) {
+                continue;
+            }
+            cnt -= (R[i] - i + 1);
+            i = R[i];
+        }
+        ans = (ans * cnt);
+        l = r;
+        segments++;
+    }
+    cout << segments << ' ' << ans << '\n';
 }
 
-mint P(int a, int b) {
-    if (a < b) {
-        return 0;
+int main() { 
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    
+    int tc = 1;
+    cin >> tc;
+    for (int t = 1; t <= tc; t++) {
+        solve();
     }
-    return fact[a] * invf[a - b];
-}
- 
-void init() {
-    fact[0] = invf[0] = 1;
-    for (int i = 1; i < N; i++) {
-        fact[i] = fact[i - 1] * i;
-        invf[i] = fact[i].inv();
-    }
+    
+    return 0;
 }

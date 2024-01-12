@@ -1,3 +1,7 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
 template<const int &MOD>
 struct _m_int {
     int val;
@@ -146,32 +150,90 @@ struct _m_int {
  
 template<const int &MOD> _m_int<MOD> _m_int<MOD>::save_inv[_m_int<MOD>::SAVE_INV];
  
-extern const int MOD = 1e9 + 7;
+extern const int MOD = 998244353;
 using mint = _m_int<MOD>;
+using tiii = tuple<long long, mint, mint>;
 
-const int N = 2e5 + 5;
- 
-mint fact[N];
-mint invf[N];
- 
-mint C(int a, int b) {
-    if (a < b) {
-        return 0;
+map<long long, vector<vector<tiii>>> memo;
+
+vector<vector<tiii>> DP(long long u) {
+    if (u <= 0) {
+        return {};
     }
-    return fact[a] * invf[b] * invf[a - b];
+    if (u == 1) {
+        return {{{u, 1, 1}}};
+    }
+    if (memo.count(u)) {
+        return memo[u];
+    }
+    long long l = (u + 1) / 2;
+    long long r = u / 2;
+    auto L = DP(l);
+    auto R = DP(r);
+    int sz = (int) max(L.size(), R.size());
+    vector<vector<tiii>> ret(sz + 1);
+    mint curways = (mint(2).pow(l) - 1) * (mint(2).pow(r) - 1);
+    ret[0].emplace_back(u, 1, curways);
+    for (int i = 0; i < (int) L.size(); i++) {
+        for (auto [v, cnt, ways] : L[i]) {
+            ret[i + 1].emplace_back(v, cnt, ways);
+        }
+    }
+    for (int i = 0; i < (int) R.size(); i++) {
+        for (auto [v, cnt, ways] : R[i]) {
+            bool isNew = true;
+            for (auto& [cv, ccnt, cways] : ret[i + 1]) {
+                if (v == cv) {
+                    isNew = false;
+                    ccnt += cnt;
+                }
+            }
+            if (isNew) {
+                ret[i + 1].emplace_back(v, cnt, ways);
+            }
+        }
+    }
+    return memo[u] = ret;
 }
 
-mint P(int a, int b) {
-    if (a < b) {
+mint compute(long long u) {
+    if (u == 0) {
         return 0;
     }
-    return fact[a] * invf[a - b];
-}
- 
-void init() {
-    fact[0] = invf[0] = 1;
-    for (int i = 1; i < N; i++) {
-        fact[i] = fact[i - 1] * i;
-        invf[i] = fact[i].inv();
+    auto dp = DP(u);
+    mint two = 1;
+    mint ret = 0;
+    for (int i = 0; i < (int) dp.size(); i++) {
+        for (auto [_, cnt, ways] : dp[i]) {
+            ret += cnt * ways * two;
+        }
+        two *= 2;
     }
+    return ret;
+}
+
+void solve() {
+    long long n;
+    cin >> n;
+    mint ans = compute(n);
+    auto dp = DP(n);
+    for (int i = 0; i + 1 < (int) dp.size(); i++) {
+        for (auto [v, cnt, ways] : dp[i]) {
+            ans += compute(v / 2) * cnt;
+        }
+    }
+    cout << ans << '\n';
+}
+
+int main() { 
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    
+    int tc = 1;
+    cin >> tc;
+    for (int t = 1; t <= tc; t++) {
+        solve();
+    }
+    
+    return 0;
 }

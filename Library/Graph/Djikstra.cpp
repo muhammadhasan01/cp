@@ -31,14 +31,14 @@ void dijkstra(int s, vector<int> & d, vector<int> & p) {
     }
 }
 
-void dijkstra(int s, vector<int> & d, vector<int> & p) {
+void dijkstra(int s) {
     int n = adj.size();
     d.assign(n, INF);
     p.assign(n, -1);
 
     d[s] = 0;
-    using pii = pair<int, int>;
-    priority_queue<pii, vector<pii>, greater<pii>> q;
+    using pli = pair<long long, int>;
+    priority_queue<pli, vector<pli>, greater<pli>> q;
     q.push({0, s});
     while (!q.empty()) {
         int v = q.top().second;

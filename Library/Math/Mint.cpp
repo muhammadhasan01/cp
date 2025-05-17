@@ -81,14 +81,19 @@ mint fact[N];
 mint invf[N];
  
 mint C(int a, int b) {
-    if (a < b) return 0;
+    if (a < b) {
+        return 0;
+    }
     return fact[a] * invf[b] * invf[a - b];
 }
  
 void init() {
-    fact[0] = invf[0] = 1;
+    fact[0] = 1;
     for (int i = 1; i < N; i++) {
         fact[i] = fact[i - 1] * i;
-        invf[i] = fact[i].inv();
+    }
+    invf[N - 1] = fact[N - 1].inv();
+    for (int i = N - 1; i >= 1; i--) {
+        invf[i - 1] = invf[i] * i;
     }
 }

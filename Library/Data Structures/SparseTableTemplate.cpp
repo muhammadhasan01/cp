@@ -6,22 +6,22 @@ struct SparseTable {
     SparseTable(vector<T> &a, const Fun &g) : f(g) {
         int n = a.size();
         int lg = __lg(n) + 1;
-        sp.resize(lg, vector<T>(n));
+        sp.resize(n, vector<T>(lg));
         for (int i = 0; i < n; i++) {
-            sp[0][i] = a[i];
+            sp[i][0] = a[i];
         }
         for (int j = 0; j < lg - 1; j++) {
             for (int i = 0; i < n; i++) {
                 if (i + (1 << (j + 1)) > n) {
                     break;
                 }
-                sp[j + 1][i] = f(sp[j][i], sp[j][i + (1 << j)]);
+                sp[i][j + 1] = f(sp[i][j], sp[i + (1 << j)][j]);
             }
         }
     }
  
     T get(int l, int r) {
         int k = __lg(r - l + 1);
-        return f(sp[k][l], sp[k][r - (1 << k) + 1]);
+        return f(sp[l][k], sp[r - (1 << k) + 1][k]);
     }
 };

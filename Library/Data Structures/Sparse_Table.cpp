@@ -14,7 +14,7 @@ struct SparseTable {
             len <<= 1;
             ++k;
         }
-        dp.assign(len, vector<T>(k, 0));
+        dp.assign(len, vector<T>(k));
         prec.assign(len, 0);
         for (int i = 2; i < 2 * n; i++) {
             prec[i] = prec[i >> 1] + 1;
